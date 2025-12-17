@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#1e3a8a" />
+    <meta name="description" content="Ginza Industries Ltd. - Professional Order Portal for managing orders across multiple locations" />
+    <meta name="keywords" content="Ginza Industries, Order Portal, Order Management System" />
+    <meta name="author" content="Ginza Industries Ltd." />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ginza Industries">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="email=no">
+    <meta name="msapplication-TileColor" content="#1e3a8a">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Ginza Industries Ltd. - Order Portal" />
+    <meta property="og:description" content="Professional Order Portal for managing orders across multiple locations" />
+    
+    <!-- Title -->
+    <title>Ginza Industries Ltd. - Order Portal</title>
+    
+    <!-- Manifest and Icons -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    
+    <!-- External Stylesheets -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdn.tailwindcss.com" as="script">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Styles -->
+    <style>
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      html, body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background-color: #f3f4f6;
+        overscroll-behavior-y: none; /* Prevents pull-to-refresh on mobile */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+      
+      #root {
+        width: 100%;
+        height: 100%;
+      }
+      
+      /* Custom scrollbar for table */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1; 
+        border-radius: 4px;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8; 
+      }
+      
+      /* App-like Animations */
+      @keyframes slideUp {
+        from { 
+          transform: translateY(100%); 
+          opacity: 0; 
+        }
+        to { 
+          transform: translateY(0); 
+          opacity: 1; 
+        }
+      }
+      
+      @keyframes fadeIn {
+        from { 
+          opacity: 0; 
+        }
+        to { 
+          opacity: 1; 
+        }
+      }
+      
+      @keyframes slideInDown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+      }
+      
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+      
+      .animate-slide-in-down {
+        animation: slideInDown 0.3s ease-out forwards;
+      }
+      
+      .animate-pulse-subtle {
+        animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      }
+      
+      /* Safe area for iPhone X+ */
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      
+      .pl-safe {
+        padding-left: env(safe-area-inset-left);
+      }
+      
+      .pr-safe {
+        padding-right: env(safe-area-inset-right);
+      }
+      
+      .pt-safe {
+        padding-top: env(safe-area-inset-top);
+      }
+      
+      /* Loading state */
+      .loading {
+        pointer-events: none;
+        opacity: 0.6;
+      }
+      
+      /* Focus styles for better accessibility */
+      button:focus,
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+      }
+      
+      /* Smooth scroll behavior */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Prevent body scroll when modal is open */
+      body.modal-open {
+        overflow: hidden;
+      }
+      
+      /* Error state styling */
+      .error-state {
+        border-color: #ef4444;
+        background-color: #fee2e2;
+      }
+      
+      /* Success state styling */
+      .success-state {
+        border-color: #10b981;
+        background-color: #ecfdf5;
+      }
+      
+      /* Warning state styling */
+      .warning-state {
+        border-color: #f59e0b;
+        background-color: #fffbeb;
+      }
+    </style>
+    
+    <!-- Import Map for Module Resolution -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0",
+        "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+        "date-fns": "https://aistudiocdn.com/date-fns@^4.1.0",
+        "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.45.0"
+      }
+    }
+    </script>
+    
+    <!-- Additional Stylesheets -->
+    <link rel="stylesheet" href="/index.css">
+  </head>
+  
+  <body>
+    <noscript>
+      <div style="padding: 20px; text-align: center; font-size: 16px; color: #6b7280; background: #fef3c7; border: 1px solid #fcd34d; margin: 20px; border-radius: 8px;">
+        <strong>JavaScript Required:</strong> This application requires JavaScript to be enabled. Please enable JavaScript in your browser settings.
+      </div>
+    </noscript>
+    <div id="root"></div>
+    
+    <!-- Main React Application -->
+    <script type="module" src="/index.tsx"></script>
+    
+    <!-- Service Worker Registration for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js').catch(function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

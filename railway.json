@@ -1,0 +1,12 @@
+#!/bin/bash
+# railway.json configuration
+# This tells Railway how to build and deploy
+
+{
+  "builder": "nixpacks",
+  "buildCommand": "npm run build",
+  "startCommand": "caddy run",
+  "nixpacksConfig": {
+    "python": "3.11"
+  }
+}
