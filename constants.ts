@@ -92,8 +92,7 @@ export const SALES_PERSONS: SalesPerson[] = [
   { id: 'sp_mumbai_3', name: 'Pradeep Jadhav', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_4', name: 'Rakesh Jain', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_5', name: 'Santosh Pachratkar', contactNo: '', branchId: 'mumbai' },
-  { id: 'sp_mumbai_6', name: 'Vishal Ambhore', contactNo: '', branchId: 'mumbai' },
-  { id: 'sp_mumbai_7', name: 'Mumbai HO', contactNo: '', branchId: 'mumbai' },
+  { id: 'sp_mumbai_6', name: 'Mumbai HO', contactNo: '', branchId: 'mumbai' },
 ];
 
 export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7hX97jGL2A5hJ4YhJu5STdOQa1rYQOI4jgKsteuN0FPDZuAYD4OoEXFSrEYtCqfbq5A/exec"; // Google Apps Script deployment URL

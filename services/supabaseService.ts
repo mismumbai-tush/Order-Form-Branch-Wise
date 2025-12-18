@@ -809,12 +809,22 @@ export const diagnoseSupabaseTables = async () => {
         console.log('\n🏢 UNIQUE BRANCHES in database:');
         Array.from(uniqueBranches).forEach(branch => console.log(`   • ${branch}`));
         
-        // Show unique sales persons
-        const uniqueSalesPersons = new Set(customersData.map((c: any) => c.sales_person_name));
-        console.log('\n👤 UNIQUE SALES PERSONS in database:');
-        Array.from(uniqueSalesPersons).forEach(sp => console.log(`   • ${sp}`));
-        
-        // Show customers by branch and sales person
+      // Show unique sales persons
+      const uniqueSalesPersons = new Set(customersData.map((c: any) => c.sales_person_name));
+      console.log('\n👤 UNIQUE SALES PERSONS in database (ALL BRANCHES):');
+      Array.from(uniqueSalesPersons).forEach(sp => console.log(`   • ${sp}`));
+      
+      // Show sales persons BY branch
+      console.log('\n👤 SALES PERSONS BY BRANCH:');
+      const byBranch: any = {};
+      customersData.forEach((c: any) => {
+        if (!byBranch[c.branch]) byBranch[c.branch] = new Set();
+        byBranch[c.branch].add(c.sales_person_name);
+      });
+      Object.entries(byBranch).forEach(([branch, persons]: any) => {
+        console.log(`   ${branch}:`);
+        persons.forEach((sp: string) => console.log(`     • ${sp}`));
+      });        // Show customers by branch and sales person
         console.log('\n🔗 CUSTOMERS BY BRANCH & SALES PERSON:');
         const groupedData: any = {};
         customersData.forEach((c: any) => {
