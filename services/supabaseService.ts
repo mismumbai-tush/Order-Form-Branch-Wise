@@ -921,7 +921,4 @@ if (typeof window !== 'undefined') {
     });
   };
 }
-    return customers;
-  };
-}
 
