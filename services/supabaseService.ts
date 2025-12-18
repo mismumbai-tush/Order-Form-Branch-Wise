@@ -898,5 +898,30 @@ if (typeof window !== 'undefined') {
     });
     return customers;
   };
+  // Enhanced diagnostic to show exact sales person names in database
+  (window as any).debugSalesPersons = async () => {
+    console.log('\n🔍 SALES PERSONS IN DATABASE\n');
+    const { data } = await supabase.from('customers').select('branch, sales_person_name').limit(5000);
+    const byBranch: any = {};
+    
+    if (data) {
+      data.forEach((row: any) => {
+        if (!byBranch[row.branch]) byBranch[row.branch] = new Map();
+        const key = row.sales_person_name;
+        const count = byBranch[row.branch].get(key) || 0;
+        byBranch[row.branch].set(key, count + 1);
+      });
+    }
+    
+    Object.entries(byBranch).forEach(([branch, persons]: any) => {
+      console.log(`\n📍 ${branch}:`);
+      persons.forEach((count: number, name: string) => {
+        console.log(`   "${name}" → ${count} customers`);
+      });
+    });
+  };
+}
+    return customers;
+  };
 }
 
