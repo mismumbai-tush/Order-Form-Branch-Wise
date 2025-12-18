@@ -220,20 +220,11 @@ function App() {
     }
     
     // Filter sales persons from the SALES_PERSONS constant based on selected branch
+    // IMPORTANT: Use ONLY constants.ts SALES_PERSONS, NOT Supabase registered users
+    // This ensures the dropdown shows only configured sales people
     const branchSalesPeople = SALES_PERSONS.filter(sp => sp.branchId === branchId);
     
-    // Also include any registered users from that branch (in case they registered)
-    const registeredInBranch = allSalesPersons.filter(u => u.branchId === branchId);
-    
-    // Combine both lists, avoiding duplicates
-    const combined = [
-      ...branchSalesPeople,
-      ...registeredInBranch.filter(reg => 
-        !branchSalesPeople.find(sp => sp.name === `${reg.firstName} ${reg.lastName}`)
-      )
-    ];
-    
-    return combined;
+    return branchSalesPeople;
   };
 
   // Handle Logic when Sales Person changes (Manual or Auto)
@@ -1290,16 +1281,10 @@ function App() {
                          )}
                          {/* Show all other visible sales persons */}
                          {visibleSalesPersons
-                           .filter(sp => {
-                             // Get the full name depending on type
-                             const spName = 'firstName' in sp ? `${sp.firstName} ${sp.lastName}` : sp.name;
-                             return !session || spName !== session.salesPerson.name;
-                           })
-                           .map(sp => {
-                             // Handle both SalesPerson and RegisteredUser types
-                             const fullName = 'firstName' in sp ? `${sp.firstName} ${sp.lastName}` : sp.name;
-                             return <option key={sp.id} value={fullName}>{fullName}</option>
-                           })
+                           .filter(sp => !session || sp.name !== session.salesPerson.name)
+                           .map(sp => (
+                             <option key={sp.id} value={sp.name}>{sp.name}</option>
+                           ))
                          }
                       </Select>
                     </div>
