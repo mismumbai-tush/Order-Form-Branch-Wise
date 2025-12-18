@@ -336,6 +336,11 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
         const dbLastName = customerSpName.split(' ').pop();
         if (dbLastName === cleanSpName || cleanSpName.includes(dbLastName)) return true;
         
+        // 6. Fuzzy matching - remove special chars and extra spaces
+        const cleanDb = customerSpName.replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '');
+        const cleanInput = cleanSpName.replace(/\s+/g, ' ').replace(/[^a-z0-9 ]/g, '');
+        if (cleanDb === cleanInput || cleanDb.includes(cleanInput) || cleanInput.includes(cleanDb)) return true;
+        
         return false;
       });
       
