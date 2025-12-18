@@ -52,36 +52,39 @@ export const SALES_PERSONS: SalesPerson[] = [
   { id: 'sp_bangalore_1', name: 'Balsubramanium', contactNo: '', branchId: 'bangalore' },
   { id: 'sp_bangalore_2', name: 'Mukesh', contactNo: '', branchId: 'bangalore' },
   { id: 'sp_bangalore_3', name: 'Murali', contactNo: '', branchId: 'bangalore' },
-  
+  { id: 'sp_bangalore_4', name: 'Banglore Ho', contactNo: '', branchId: 'bangalore' },
+
   // Tirupur
   { id: 'sp_tirupur_1', name: 'Ravi', contactNo: '', branchId: 'tirupur' },
   { id: 'sp_tirupur_2', name: 'Alexander', contactNo: '', branchId: 'tirupur' },
   { id: 'sp_tirupur_3', name: 'R Subramaniam', contactNo: '', branchId: 'tirupur' },
-  
+  { id: 'sp_tirupur_4', name: 'Tirupur HO', contactNo: '', branchId: 'tirupur' },
   // Delhi
   { id: 'sp_delhi_1', name: 'Anish', contactNo: '', branchId: 'delhi' },
   { id: 'sp_delhi_2', name: 'Lalit', contactNo: '', branchId: 'delhi' },
   { id: 'sp_delhi_3', name: 'Mukesh', contactNo: '', branchId: 'delhi' },
   { id: 'sp_delhi_4', name: 'Rahul', contactNo: '', branchId: 'delhi' },
   { id: 'sp_delhi_5', name: 'Suresh', contactNo: '', branchId: 'delhi' },
-  
+  { id: 'sp_delhi_6', name: 'Delhi HO', contactNo: '', branchId: 'delhi' },
   // Ahmedabad
   { id: 'sp_ahmedabad_1', name: 'Ravi Kaushik', contactNo: '', branchId: 'ahmedabad' },
   { id: 'sp_ahmedabad_2', name: 'Manish Shah', contactNo: '', branchId: 'ahmedabad' },
-  
+  { id: 'sp_ahmedabad_3', name: 'Ahmedabad HO', contactNo: '', branchId: 'ahmedabad' },
   // Ludhiana
   { id: 'sp_ludhiana_1', name: 'Mahesh', contactNo: '', branchId: 'ludhiana' },
+  { id: 'sp_ludhiana_2', name: 'Ludhiana HO', contactNo: '', branchId: 'ludhiana' },
   
   // Surat
   { id: 'sp_surat_1', name: 'Anil', contactNo: '', branchId: 'surat' },
   { id: 'sp_surat_2', name: 'Raghuveer', contactNo: '', branchId: 'surat' },
   { id: 'sp_surat_3', name: 'Raj Vanraj', contactNo: '', branchId: 'surat' },
   { id: 'sp_surat_4', name: 'Shailesh', contactNo: '', branchId: 'surat' },
+  { id: 'sp_surat_4', name: 'Surat HO', contactNo: '', branchId: 'surat' },
   
   // Ulhasnagar
   { id: 'sp_ulhasnagar_1', name: 'Vijay Sutar', contactNo: '', branchId: 'ulhasnagar' },
   { id: 'sp_ulhasnagar_2', name: 'Shiv Ratan', contactNo: '', branchId: 'ulhasnagar' },
-  { id: 'sp_ulhasnagar_3', name: 'Ulhasnagar', contactNo: '', branchId: 'ulhasnagar' },
+  { id: 'sp_ulhasnagar_3', name: 'Ulhasnagar HO', contactNo: '', branchId: 'ulhasnagar' },
   
   // Mumbai
   { id: 'sp_mumbai_1', name: 'Amit Korgaonkar', contactNo: '', branchId: 'mumbai' },
@@ -90,6 +93,7 @@ export const SALES_PERSONS: SalesPerson[] = [
   { id: 'sp_mumbai_4', name: 'Rakesh Jain', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_5', name: 'Santosh Pachratkar', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_6', name: 'Vishal Ambhore', contactNo: '', branchId: 'mumbai' },
+  { id: 'sp_mumbai_7', name: 'Mumbai HO', contactNo: '', branchId: 'mumbai' },
 ];
 
 export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7hX97jGL2A5hJ4YhJu5STdOQa1rYQOI4jgKsteuN0FPDZuAYD4OoEXFSrEYtCqfbq5A/exec"; // Google Apps Script deployment URL

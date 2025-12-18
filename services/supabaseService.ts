@@ -310,10 +310,47 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
     // Filter by sales person name if provided
     let filteredData = branchFiltered;
     if (salesPersonName) {
-      filteredData = filteredData.filter((c: any) => 
-        c.sales_person_name && c.sales_person_name.toLowerCase() === salesPersonName.toLowerCase()
-      );
+      const cleanSpName = salesPersonName.toLowerCase().trim();
+      
+      console.log(`🔍 Searching for sales person: "${salesPersonName}"`);
+      console.log(`   Available sales persons in this branch: ${new Set(branchFiltered.map((c: any) => c.sales_person_name)).size} unique`);
+      
+      filteredData = filteredData.filter((c: any) => {
+        const customerSpName = (c.sales_person_name || '').toLowerCase().trim();
+        
+        // Multiple matching strategies (priority order):
+        // 1. Exact match
+        if (customerSpName === cleanSpName) return true;
+        
+        // 2. Contains match (user input is substring of database)
+        if (customerSpName.includes(cleanSpName)) return true;
+        
+        // 3. Reverse contains (database is substring of user input)
+        if (cleanSpName.includes(customerSpName)) return true;
+        
+        // 4. First name match (handle "Vijay Sutar" matching "Vijay")
+        const dbFirstName = customerSpName.split(' ')[0];
+        if (dbFirstName === cleanSpName || cleanSpName.includes(dbFirstName)) return true;
+        
+        // 5. Last name match (handle "Vishal Ambhore" matching "Ambhore")
+        const dbLastName = customerSpName.split(' ').pop();
+        if (dbLastName === cleanSpName || cleanSpName.includes(dbLastName)) return true;
+        
+        return false;
+      });
+      
       console.log(`✅ After sales person filter: ${filteredData.length} customers for "${salesPersonName}"`);
+      
+      if (filteredData.length === 0) {
+        // Debug: Show what sales persons are actually in this branch
+        const branchSalesPersons = Array.from(new Set(branchFiltered.map((c: any) => c.sales_person_name)));
+        console.warn(`⚠️  No match for "${salesPersonName}"`);
+        console.warn(`   Sales persons in this branch (${branchSalesPersons.length}):`, branchSalesPersons);
+        console.warn(`   Sample customers from this branch:`);
+        branchFiltered.slice(0, 5).forEach((c: any) => {
+          console.warn(`     • ${c.customer_name} → Sales Person: "${c.sales_person_name}"`);
+        });
+      }
     }
     
     if (filteredData.length === 0) {
@@ -736,29 +773,115 @@ export const seedTestCustomers = async (branchId: string, salesPersonId: string)
 
 // Diagnostic function to check what tables exist and their structure
 export const diagnoseSupabaseTables = async () => {
-  console.log('\n🔍 SUPABASE DIAGNOSTIC - Checking available tables...\n');
+  console.log('\n🔍 COMPREHENSIVE SUPABASE DIAGNOSTIC\n');
   
-  const tablesToCheck = ['items_new', 'items', 'products', 'item'];
-  
-  for (const tableName of tablesToCheck) {
-    try {
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('*')
-        .limit(1);
+  try {
+    // 1. Check Customers Table
+    console.log('=' .repeat(60));
+    console.log('📊 CUSTOMERS TABLE DATA:');
+    console.log('=' .repeat(60));
+    
+    const { data: customersData, error: customersError } = await supabase
+      .from('customers')
+      .select('*')
+      .limit(100);
+    
+    if (customersError) {
+      console.error('❌ Error fetching customers:', customersError.message);
+    } else {
+      console.log(`✅ Total customers: ${customersData?.length || 0}\n`);
       
-      if (error) {
-        console.log(`❌ Table "${tableName}": ${error.message}`);
-      } else {
-        console.log(`✅ Table "${tableName}" EXISTS`);
-        if (data && data.length > 0) {
-          console.log(`   Columns:`, Object.keys(data[0]));
-          console.log(`   Sample data:`, data[0]);
-        }
+      if (customersData && customersData.length > 0) {
+        console.log('📋 COLUMN NAMES in customers table:');
+        console.log(Object.keys(customersData[0]));
+        
+        console.log('\n📍 SAMPLE DATA (First 5 customers):');
+        customersData.slice(0, 5).forEach((c: any, idx: number) => {
+          console.log(`\n${idx + 1}. Customer: ${c.customer_name}`);
+          console.log(`   - Branch: ${c.branch}`);
+          console.log(`   - Sales Person: ${c.sales_person_name}`);
+          console.log(`   - Email: ${c.email_id || 'N/A'}`);
+          console.log(`   - Phone: ${c.mob_no || 'N/A'}`);
+        });
+        
+        // Show unique branches
+        const uniqueBranches = new Set(customersData.map((c: any) => c.branch));
+        console.log('\n🏢 UNIQUE BRANCHES in database:');
+        Array.from(uniqueBranches).forEach(branch => console.log(`   • ${branch}`));
+        
+        // Show unique sales persons
+        const uniqueSalesPersons = new Set(customersData.map((c: any) => c.sales_person_name));
+        console.log('\n👤 UNIQUE SALES PERSONS in database:');
+        Array.from(uniqueSalesPersons).forEach(sp => console.log(`   • ${sp}`));
+        
+        // Show customers by branch and sales person
+        console.log('\n🔗 CUSTOMERS BY BRANCH & SALES PERSON:');
+        const groupedData: any = {};
+        customersData.forEach((c: any) => {
+          const key = `${c.branch} | ${c.sales_person_name}`;
+          if (!groupedData[key]) groupedData[key] = 0;
+          groupedData[key]++;
+        });
+        Object.entries(groupedData).forEach(([key, count]) => {
+          console.log(`   ${key}: ${count} customers`);
+        });
       }
-    } catch (err: any) {
-      console.log(`❌ Table "${tableName}": Exception - ${err.message}`);
     }
+    
+    // 2. Check Items Table
+    console.log('\n' + '='.repeat(60));
+    console.log('📦 ITEMS_NEW TABLE DATA:');
+    console.log('='.repeat(60));
+    
+    const { data: itemsData, error: itemsError } = await supabase
+      .from('items_new')
+      .select('*')
+      .limit(100);
+    
+    if (itemsError) {
+      console.error('❌ Error fetching items:', itemsError.message);
+    } else {
+      console.log(`✅ Total items: ${itemsData?.length || 0}\n`);
+      
+      if (itemsData && itemsData.length > 0) {
+        console.log('📋 COLUMN NAMES in items_new table:');
+        console.log(Object.keys(itemsData[0]));
+        
+        console.log('\n📍 SAMPLE DATA (First 5 items):');
+        itemsData.slice(0, 5).forEach((item: any, idx: number) => {
+          console.log(`\n${idx + 1}. ${item.item_name || 'Unknown'}`);
+          console.log(`   - Category: ${item.category}`);
+          console.log(`   - Rate: ${item.default_rate || 'N/A'}`);
+          console.log(`   - Width: ${item.default_width || 'N/A'}`);
+        });
+        
+        // Show unique categories
+        const uniqueCategories = new Set(itemsData.map((i: any) => i.category));
+        console.log('\n📂 UNIQUE CATEGORIES:');
+        Array.from(uniqueCategories).forEach(cat => console.log(`   • ${cat}`));
+      }
+    }
+    
+    console.log('\n' + '='.repeat(60));
+    console.log('✅ DIAGNOSTIC COMPLETE\n');
+    
+  } catch (error) {
+    console.error('❌ Diagnostic error:', error);
   }
 };
+
+// Make it globally accessible
+if (typeof window !== 'undefined') {
+  (window as any).diagnoseSupabase = diagnoseSupabaseTables;
+  // Also add a helper to debug specific branch+sales person combination
+  (window as any).debugCustomersFor = async (branch: string, salesPerson: string) => {
+    console.log(`\n🔍 DEBUG: Customers for ${branch} → ${salesPerson}\n`);
+    const customers = await fetchCustomersByBranchAndSalesPerson(branch, salesPerson);
+    console.log(`Found: ${customers.length} customers`);
+    customers.forEach((c, i) => {
+      console.log(`${i+1}. ${c.name} (${c.contactNo || 'no phone'})`);
+    });
+    return customers;
+  };
+}
 
