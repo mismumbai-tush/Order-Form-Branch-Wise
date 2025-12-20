@@ -274,10 +274,17 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
 
     console.log('   Branch variations to search:', branchVariations);
 
-    // Fetch ALL customers first
+    // Fetch ALL customers with app_users join to get sales person name
     const { data: allData, error: fetchError } = await supabase
       .from('customers')
-      .select('*');
+      .select(`
+        *,
+        app_users:sales_person_id (
+          id,
+          first_name,
+          last_name
+        )
+      `);
 
     if (fetchError) {
       console.error('❌ Error fetching customers:', fetchError.message);
@@ -299,8 +306,15 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
       console.log('   First record:', allData[0]);
     }
 
+    // Enrich data: Get sales_person_name from either column or app_users join
+    const enrichedData = allData.map((c: any) => ({
+      ...c,
+      sales_person_name: c.sales_person_name || 
+        (c.app_users ? `${c.app_users.first_name || ''} ${c.app_users.last_name || ''}`.trim() : '')
+    }));
+
     // Filter by branch - case insensitive match
-    let branchFiltered = allData.filter((c: any) => {
+    let branchFiltered = enrichedData.filter((c: any) => {
       const customerBranch = (c.branch || '').toLowerCase();
       return branchVariations.some(v => v && customerBranch === v.toLowerCase());
     });
@@ -479,7 +493,7 @@ export const createNewCustomer = async (
   }
 };
 
-export const bulkUpsertCustomers = async (customers: { sales_person_id: string, name: string, email?: string, contact_no: string, billing_address: string, delivery_address: string, branch?: string }[]): Promise<boolean> => {
+export const bulkUpsertCustomers = async (customers: { sales_person_id: string, name: string, email?: string, contact_no: string, billing_address: string, delivery_address: string, branch?: string, sales_person_name?: string }[]): Promise<boolean> => {
   if (!isSupabaseConfigured || customers.length === 0) return false;
 
   const BATCH_SIZE = 100;
@@ -900,7 +914,7 @@ if (typeof window !== 'undefined') {
   };
   // Enhanced diagnostic to show exact sales person names in database
   (window as any).debugSalesPersons = async () => {
-    console.log('\n🔍 SALES PERSONS IN DATABASE\n');
+    console.log('\n🔍 ACTUAL SALES PERSONS IN DATABASE (FOR CONSTANTS.TS UPDATE)\n');
     const { data } = await supabase.from('customers').select('branch, sales_person_name').limit(5000);
     const byBranch: any = {};
     
@@ -913,10 +927,12 @@ if (typeof window !== 'undefined') {
       });
     }
     
+    console.log('Copy these EXACT names to constants.ts SALES_PERSONS array:\n');
     Object.entries(byBranch).forEach(([branch, persons]: any) => {
-      console.log(`\n📍 ${branch}:`);
-      persons.forEach((count: number, name: string) => {
-        console.log(`   "${name}" → ${count} customers`);
+      console.log(`\n// ${branch}:`);
+      const sorted = Array.from(persons.entries()).sort((a, b) => b[1] - a[1]);
+      sorted.forEach(([name, count]: any) => {
+        console.log(`{ id: 'sp_...', name: '${name}', contactNo: '', branchId: '...' }, // ${count} customers`);
       });
     });
   };

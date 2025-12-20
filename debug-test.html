@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ginza Order - Debug Test</title>
+</head>
+<body>
+    <h1>Ginza Order - Debug Test</h1>
+    <div id="output" style="white-space: pre-wrap; font-family: monospace; padding: 20px; background: #f0f0f0;">
+        Loading...
+    </div>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+        
+        const supabaseUrl = 'https://qtctkhkykkwntecxgezs.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF0Y3RraGt5a2t3bnRlY3hnZXpzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM2Mzc5MzEsImV4cCI6MjA3OTIxMzkzMX0.JYwNRCuadt34wvKpIwjQjvfkMVr73iCphMnZ3oc-xFM';
+        
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        const output = document.getElementById('output');
+        
+        async function test() {
+            output.innerHTML = 'Starting debug test...\n\n';
+            
+            try {
+                // Test 1: Check if table exists
+                output.innerHTML += '✅ Step 1: Checking if customers table is accessible...\n';
+                const { data: tableCheck, error: tableError } = await supabase
+                    .from('customers')
+                    .select('id', { count: 'exact' })
+                    .limit(1);
+                    
+                if (tableError) {
+                    output.innerHTML += `❌ Error: ${tableError.message}\n`;
+                    return;
+                }
+                
+                output.innerHTML += '✅ Table is accessible\n\n';
+                
+                // Test 2: Fetch all customers
+                output.innerHTML += '✅ Step 2: Fetching all customers...\n';
+                const { data: allData, error: fetchError } = await supabase
+                    .from('customers')
+                    .select('*');
+                    
+                if (fetchError) {
+                    output.innerHTML += `❌ Error: ${fetchError.message}\n`;
+                    return;
+                }
+                
+                output.innerHTML += `✅ Found ${allData?.length || 0} total customers\n\n`;
+                
+                // Test 3: Check Mumbai HO data
+                output.innerHTML += '✅ Step 3: Checking Mumbai HO customers...\n';
+                const mumbaiCustomers = allData.filter(c => (c.branch || '').toLowerCase() === 'mumbai ho');
+                output.innerHTML += `✅ Found ${mumbaiCustomers.length} customers in Mumbai HO\n\n`;
+                
+                // Test 4: Check Vishal Ambhore specifically
+                output.innerHTML += '✅ Step 4: Checking Vishal Ambhore customers...\n';
+                const vishalCustomers = mumbaiCustomers.filter(c => 
+                    (c.sales_person_name || '').toLowerCase().includes('vishal')
+                );
+                output.innerHTML += `✅ Found ${vishalCustomers.length} customers for Vishal Ambhore\n\n`;
+                
+                // Test 5: Show sample data
+                output.innerHTML += '✅ Step 5: Sample Vishal Ambhore customers:\n';
+                vishalCustomers.slice(0, 5).forEach(c => {
+                    output.innerHTML += `  • ${c.name} | Branch: ${c.branch} | Sales Person: ${c.sales_person_name}\n`;
+                });
+                
+                // Test 6: Show all unique sales persons in Mumbai HO
+                output.innerHTML += '\n✅ Step 6: All sales persons in Mumbai HO:\n';
+                const uniqueSalesPersons = [...new Set(mumbaiCustomers.map(c => c.sales_person_name))];
+                uniqueSalesPersons.forEach(sp => {
+                    const count = mumbaiCustomers.filter(c => c.sales_person_name === sp).length;
+                    output.innerHTML += `  • ${sp}: ${count} customers\n`;
+                });
+                
+            } catch (error) {
+                output.innerHTML += `\n❌ Error: ${error.message}\n${error.stack}`;
+            }
+        }
+        
+        test();
+    </script>
+</body>
+</html>

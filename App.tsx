@@ -803,7 +803,8 @@ function App() {
            contact_no: idxMob !== -1 ? row[idxMob] : '',
            billing_address: idxBill !== -1 ? row[idxBill] : '',
            delivery_address: '', 
-           branch: idxBranch !== -1 ? row[idxBranch] : '' // Capture Branch from CSV
+           branch: idxBranch !== -1 ? row[idxBranch] : '',
+           sales_person_name: spName // ADD THIS: Store the sales person name from CSV
          });
        }
     });
