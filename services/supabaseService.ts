@@ -303,15 +303,34 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
     if (allData.length > 0) {
       console.log('📊 Sample data from database:');
       console.log('   Columns:', Object.keys(allData[0]));
-      console.log('   First record:', allData[0]);
+      console.log('   First record full data:', JSON.stringify(allData[0], null, 2));
+      console.log('   First record - checking different column name possibilities:');
+      console.log('     customer_name:', allData[0].customer_name);
+      console.log('     name:', allData[0].name);
+      console.log('     email_id:', allData[0].email_id);
+      console.log('     email:', allData[0].email);
+      console.log('     mob_no:', allData[0].mob_no);
+      console.log('     contact_no:', allData[0].contact_no);
+      console.log('     sales_person_name:', allData[0].sales_person_name);
+      console.log('     app_users:', allData[0].app_users);
     }
 
     // Enrich data: Get sales_person_name from either column or app_users join
-    const enrichedData = allData.map((c: any) => ({
-      ...c,
-      sales_person_name: c.sales_person_name || 
-        (c.app_users ? `${c.app_users.first_name || ''} ${c.app_users.last_name || ''}`.trim() : '')
-    }));
+    const enrichedData = allData.map((c: any) => {
+      const spName = c.sales_person_name || 
+        (c.app_users ? `${c.app_users.first_name || ''} ${c.app_users.last_name || ''}`.trim() : '');
+      return {
+        ...c,
+        sales_person_name: spName
+      };
+    });
+
+    console.log(`✅ After enriching with app_users join:`);
+    const uniqueEnrichedSP = new Set(enrichedData.map(c => c.sales_person_name));
+    console.log(`   Unique sales persons after enrichment: ${uniqueEnrichedSP.size}`);
+    Array.from(uniqueEnrichedSP).slice(0, 5).forEach(sp => {
+      console.log(`     • ${sp}`);
+    });
 
     // Filter by branch - case insensitive match
     let branchFiltered = enrichedData.filter((c: any) => {
@@ -320,6 +339,12 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
     });
 
     console.log(`✅ After branch filter: ${branchFiltered.length} customers`);
+    const branchSalesPersons = new Set(branchFiltered.map((c: any) => c.sales_person_name));
+    console.log(`   Unique sales persons in branch: ${branchSalesPersons.size}`);
+    Array.from(branchSalesPersons).forEach(sp => {
+      const count = branchFiltered.filter(c => c.sales_person_name === sp).length;
+      console.log(`     • ${sp}: ${count} customers`);
+    });
 
     // Filter by sales person name if provided
     let filteredData = branchFiltered;
@@ -390,13 +415,16 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
     }
     
     // Filter out null names
-    const validCustomers = filteredData.filter((c: any) => c.customer_name && c.customer_name.trim());
+    const validCustomers = filteredData.filter((c: any) => {
+      const name = c.customer_name || c.name;
+      return name && name.trim();
+    });
     
     const result = validCustomers.map((c: any) => ({
       id: c.id,
-      name: c.customer_name,
-      email: c.email_id,
-      contactNo: c.mob_no,
+      name: c.customer_name || c.name,
+      email: c.email_id || c.email,
+      contactNo: c.mob_no || c.contact_no,
       billingAddress: c.billing_address,
       deliveryAddress: c.delivery_address,
       salesPersonId: c.sales_person_name,
@@ -935,6 +963,103 @@ if (typeof window !== 'undefined') {
         console.log(`{ id: 'sp_...', name: '${name}', contactNo: '', branchId: '...' }, // ${count} customers`);
       });
     });
+  };
+
+  // Enhanced debug - shows exact Supabase data structure and Vishal Ambhore specifically
+  (window as any).debugVishalAmbhore = async () => {
+    console.log('\n🔍 DEBUG: Vishal Ambhore Customer Data\n');
+    
+    try {
+      // 1. Check all customers for Mumbai branch
+      const { data: mumbaiData, error: error1 } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('branch', 'Mumbai HO');
+      
+      if (error1) {
+        console.error('❌ Error fetching Mumbai HO data:', error1.message);
+        return;
+      }
+      
+      console.log(`✅ Total customers in Mumbai HO: ${mumbaiData?.length || 0}`);
+      
+      // 2. Check unique sales person IDs and names
+      if (mumbaiData && mumbaiData.length > 0) {
+        const uniqueSalesPersonIds = new Set(mumbaiData.map((c: any) => c.sales_person_id));
+        const uniqueSalesPersonNames = new Set(mumbaiData.map((c: any) => c.sales_person_name));
+        
+        console.log(`\n📊 Unique Sales Person IDs in Mumbai HO: ${uniqueSalesPersonIds.size}`);
+        Array.from(uniqueSalesPersonIds).forEach(id => console.log(`   • ${id}`));
+        
+        console.log(`\n📊 Unique Sales Person Names in Mumbai HO: ${uniqueSalesPersonNames.size}`);
+        Array.from(uniqueSalesPersonNames).forEach(name => console.log(`   • ${name}`));
+      }
+      
+      // 3. Try the join with app_users to see what names come back
+      const { data: joinedData, error: error2 } = await supabase
+        .from('customers')
+        .select(`
+          id,
+          name,
+          sales_person_id,
+          sales_person_name,
+          branch,
+          app_users:sales_person_id (
+            id,
+            first_name,
+            last_name,
+            email
+          )
+        `)
+        .eq('branch', 'Mumbai HO')
+        .limit(100);
+      
+      if (error2) {
+        console.error('❌ Error fetching with join:', error2.message);
+        return;
+      }
+      
+      console.log(`\n✅ Fetched ${joinedData?.length || 0} customers with JOIN to app_users`);
+      
+      // 4. Group by sales person
+      if (joinedData && joinedData.length > 0) {
+        const grouped: any = {};
+        joinedData.forEach((c: any) => {
+          const spName = c.sales_person_name || 
+            (c.app_users ? `${c.app_users.first_name} ${c.app_users.last_name}` : 'UNKNOWN');
+          if (!grouped[spName]) grouped[spName] = [];
+          grouped[spName].push(c);
+        });
+        
+        console.log(`\n📋 Customers grouped by sales person:`);
+        Object.entries(grouped).forEach(([spName, customers]: any) => {
+          console.log(`\n   ${spName}: ${customers.length} customers`);
+          if (spName.toLowerCase().includes('vishal') || spName.toLowerCase().includes('ambhore')) {
+            console.log(`   ⭐ VISHAL AMBHORE FOUND! Showing first 5:`);
+            customers.slice(0, 5).forEach((c: any, i: number) => {
+              console.log(`      ${i+1}. ${c.name || c.customer_name} (ID: ${c.id})`);
+            });
+          }
+        });
+      }
+      
+      // 5. Specific check for Vishal
+      console.log(`\n🔎 Direct search for Vishal Ambhore customers:`);
+      const { data: vishalData, error: error3 } = await supabase
+        .from('customers')
+        .select('*')
+        .eq('branch', 'Mumbai HO')
+        .ilike('sales_person_name', '%vishal%');
+      
+      if (error3) {
+        console.error('❌ Error searching for Vishal:', error3.message);
+      } else {
+        console.log(`✅ Found ${vishalData?.length || 0} customers with "vishal" in sales_person_name`);
+      }
+      
+    } catch (err) {
+      console.error('❌ Exception:', err);
+    }
   };
 }
 
