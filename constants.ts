@@ -9,6 +9,8 @@ export const BRANCHES: Branch[] = [
   { id: 'surat', name: 'Surat' },
   { id: 'ulhasnagar', name: 'Ulhasnagar' },
   { id: 'mumbai', name: 'Mumbai' },
+  { id: 'jaipur', name: 'Jaipur' },
+  { id: 'kolkata', name: 'Kolkata' },
 ];
 
 // Map HO (Head Office) branch IDs to standard branch IDs
@@ -20,7 +22,9 @@ export const BRANCH_ID_MAPPING: { [key: string]: string } = {
   'ho_tnp': 'tirupur',
   'ho_ahl': 'ahmedabad',
   'ho_lud': 'ludhiana',
-  'ho_srt': 'surat'
+  'ho_srt': 'surat',
+  'ho_jpr': 'jaipur',
+  'ho_kol': 'kolkata'
 };
 
 // Updated to match your specific CSV columns and Business logic
@@ -92,7 +96,15 @@ export const SALES_PERSONS: SalesPerson[] = [
   { id: 'sp_mumbai_3', name: 'Pradeep Jadhav', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_4', name: 'Rakesh Jain', contactNo: '', branchId: 'mumbai' },
   { id: 'sp_mumbai_5', name: 'Santosh Pachratkar', contactNo: '', branchId: 'mumbai' },
+  { id: 'sp_mumbai_6', name: 'Vishal Ambhore', contactNo: '', branchId: 'mumbai' },
   
+  //  Jaipur
+  { id: 'sp_jaipur_1', name: 'Jaipur HO', contactNo: '', branchId: 'jaipur' },
+  { id: 'sp_jaipur_2', name: 'Durgesh', contactNo: '', branchId: 'jaipur' },
+
+  // Kolkata
+  { id: 'sp_kolkata_1', name: 'Kolkata HO', contactNo: '', branchId: 'kolkata' },
+  { id: 'sp_kolkata_2', name: 'Rajesh', contactNo: '', branchId: 'kolkata' }
 ];
 
 export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7hX97jGL2A5hJ4YhJu5STdOQa1rYQOI4jgKsteuN0FPDZuAYD4OoEXFSrEYtCqfbq5A/exec"; // Google Apps Script deployment URL
