@@ -257,7 +257,11 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
       branchId === 'srt' ? 'Surat HO' : null,
       branchId === 'ludhiana' ? 'Ludhiana HO' : null,
       branchId === 'lud' ? 'Ludhiana HO' : null,
-      // Priority 2: Alternative names
+      branchId === 'jaipur' ? 'Jaipur HO' : null,
+      branchId === 'jpr' ? 'Jaipur HO' : null,
+      branchId === 'kolkata' ? 'Kolkata HO' : null,
+      branchId === 'kol' ? 'Kolkata HO' : null,
+      // Priority 2: Alternative names (without HO)
       branchId === 'mumbai' ? 'Mumbai' : null,
       branchId === 'ulhasnagar' || branchId === 'uls' ? 'Ulhasnagar' : null,
       branchId === 'delhi' || branchId === 'del' ? 'Delhi' : null,
@@ -266,6 +270,8 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
       branchId === 'ahmedabad' || branchId === 'ahl' ? 'Ahmedabad' : null,
       branchId === 'surat' || branchId === 'srt' ? 'Surat' : null,
       branchId === 'ludhiana' || branchId === 'lud' ? 'Ludhiana' : null,
+      branchId === 'jaipur' || branchId === 'jpr' ? 'Jaipur' : null,
+      branchId === 'kolkata' || branchId === 'kol' ? 'Kolkata' : null,
       // Priority 3: Fallbacks
       branchId,
       branchId.toUpperCase(),
