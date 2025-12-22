@@ -1284,20 +1284,17 @@ function App() {
                          {/* Show logged-in user first if applicable */}
                          {session && (
                            <option key={session.salesPerson.id} value={session.salesPerson.name} style={{fontWeight: 'bold'}}>
-                             ★ {session.salesPerson.name} (You) - 📊 {getCustomerCountForSalesPerson(session.salesPerson.name)} customers
+                             ★ {session.salesPerson.name} (You)
                            </option>
                          )}
-                         {/* Show all other visible sales persons with customer count */}
+                         {/* Show all other visible sales persons */}
                          {visibleSalesPersons
                            .filter(sp => !session || sp.name !== session.salesPerson.name)
-                           .map(sp => {
-                             const custCount = getCustomerCountForSalesPerson(sp.name);
-                             return (
-                               <option key={sp.id} value={sp.name}>
-                                 {sp.name} - 📊 {custCount} customers
-                               </option>
-                             );
-                           })
+                           .map(sp => (
+                             <option key={sp.id} value={sp.name}>
+                               {sp.name}
+                             </option>
+                           ))
                          }
                       </Select>
                     </div>
