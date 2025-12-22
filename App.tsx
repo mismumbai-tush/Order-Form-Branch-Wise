@@ -227,6 +227,13 @@ function App() {
     return branchSalesPeople;
   };
 
+  // Calculate customer count for a specific sales person (for display in dropdown)
+  const getCustomerCountForSalesPerson = (salesPersonName: string) => {
+    return customers.filter(c => 
+      (c.sales_person_name || '').toLowerCase() === salesPersonName.toLowerCase()
+    ).length;
+  };
+
   // Handle Logic when Sales Person changes (Manual or Auto)
   const handleSalesPersonChange = async (spName: string, isInitialLoad = false) => {
     // Safety check for undefined or null string
@@ -1277,15 +1284,20 @@ function App() {
                          {/* Show logged-in user first if applicable */}
                          {session && (
                            <option key={session.salesPerson.id} value={session.salesPerson.name} style={{fontWeight: 'bold'}}>
-                             ★ {session.salesPerson.name} (You)
+                             ★ {session.salesPerson.name} (You) - 📊 {getCustomerCountForSalesPerson(session.salesPerson.name)} customers
                            </option>
                          )}
-                         {/* Show all other visible sales persons */}
+                         {/* Show all other visible sales persons with customer count */}
                          {visibleSalesPersons
                            .filter(sp => !session || sp.name !== session.salesPerson.name)
-                           .map(sp => (
-                             <option key={sp.id} value={sp.name}>{sp.name}</option>
-                           ))
+                           .map(sp => {
+                             const custCount = getCustomerCountForSalesPerson(sp.name);
+                             return (
+                               <option key={sp.id} value={sp.name}>
+                                 {sp.name} - 📊 {custCount} customers
+                               </option>
+                             );
+                           })
                          }
                       </Select>
                     </div>
@@ -1310,24 +1322,43 @@ function App() {
                           autoComplete="off"
                           placeholder="Type to search or enter manually..."
                         />
-                        {/* Mobile-friendly vertical dropdown */}
-                        {formData.customerName && filteredCustomers.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto">
-                            {filteredCustomers.map((c, i) => (
-                              <div
-                                key={`${c.id}-${i}`}
-                                onClick={() => {
-                                  setFormData(prev => ({ ...prev, customerName: c.name }));
-                                }}
-                                className="px-3 py-2 cursor-pointer hover:bg-blue-100 border-b border-gray-100 text-sm"
-                              >
-                                <div className="font-medium">{c.name}</div>
-                                <div className="text-xs text-gray-500">
-                                  {c.contactNo && `📞 ${c.contactNo}`}
-                                  {c.branch && ` | ${c.branch}`}
-                                </div>
+                        {/* Mobile-friendly vertical dropdown with customer count */}
+                        {formData.customerName && (
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-56 overflow-y-auto">
+                            {/* Header showing total customers for this sales person */}
+                            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
+                              <div className="text-xs font-semibold text-blue-900">
+                                📊 Total Customers: <span className="text-blue-600 font-bold">{customers.length}</span>
                               </div>
-                            ))}
+                              {filteredCustomers.length < customers.length && (
+                                <div className="text-xs text-blue-700 mt-1">
+                                  🔍 Showing <span className="font-bold">{filteredCustomers.length}</span> matching results
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Customer list */}
+                            {filteredCustomers.length > 0 ? (
+                              filteredCustomers.map((c, i) => (
+                                <div
+                                  key={`${c.id}-${i}`}
+                                  onClick={() => {
+                                    setFormData(prev => ({ ...prev, customerName: c.name }));
+                                  }}
+                                  className="px-3 py-2 cursor-pointer hover:bg-blue-100 border-b border-gray-100 text-sm transition-colors"
+                                >
+                                  <div className="font-medium text-gray-800">{c.name}</div>
+                                  <div className="text-xs text-gray-500 mt-0.5">
+                                    {c.contactNo && `📞 ${c.contactNo}`}
+                                    {c.branch && ` | ${c.branch}`}
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="px-3 py-2 text-sm text-gray-500 italic">
+                                No customers match "{formData.customerName}"
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

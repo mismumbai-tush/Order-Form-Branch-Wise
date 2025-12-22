@@ -314,12 +314,19 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
       console.log('     app_users:', allData[0].app_users);
     }
 
-    // No need to enrich - sales_person_name is already in the customers table
-    const enrichedData = allData;
+    // Enrich data: Get sales_person_name from either column or app_users join
+    const enrichedData = allData.map((c: any) => {
+      const spName = c.sales_person_name || 
+        (c.app_users ? `${c.app_users.first_name || ''} ${c.app_users.last_name || ''}`.trim() : '');
+      return {
+        ...c,
+        sales_person_name: spName
+      };
+    });
 
-    console.log(`✅ Fetched customers data:`);
+    console.log(`✅ After enriching with app_users join:`);
     const uniqueEnrichedSP = new Set(enrichedData.map(c => c.sales_person_name));
-    console.log(`   Unique sales persons in database: ${uniqueEnrichedSP.size}`);
+    console.log(`   Unique sales persons after enrichment: ${uniqueEnrichedSP.size}`);
     Array.from(uniqueEnrichedSP).slice(0, 5).forEach(sp => {
       console.log(`     • ${sp}`);
     });
@@ -991,16 +998,7 @@ if (typeof window !== 'undefined') {
       const { data: joinedData, error: error2 } = await supabase
         .from('customers')
         .select(`
-          id,
-          name,
-          sales_person_id,
-          sales_person_name,
-          branch,
-          app_users:sales_person_id (
-            id,
-            first_name,
-            last_name,
-            email
+          *,
           )
         `)
         .eq('branch', 'Mumbai HO')
