@@ -427,7 +427,8 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
       billingAddress: c.billing_address,
       deliveryAddress: c.delivery_address,
       salesPersonId: c.sales_person_name,
-      branch: c.branch
+      branch: c.branch,
+      sales_person_name: c.sales_person_name // Add this for filtering
     }));
 
     console.log('✅ Returning customers:', result);

@@ -13,7 +13,8 @@ export interface Customer {
   billingAddress: string;
   deliveryAddress: string;
   salesPersonId: string; 
-  branch?: string; // Added Branch
+  branch?: string;
+  sales_person_name?: string; // Add sales person name for filtering
 }
 
 export interface Item {
