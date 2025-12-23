@@ -9,12 +9,12 @@ class OrderItemWidget extends StatefulWidget {
   final Function() onRemove;
 
   const OrderItemWidget({
-    Key? key,
+    super.key,
     required this.item,
     required this.index,
     required this.onUpdate,
     required this.onRemove,
-  }) : super(key: key);
+  });
 
   @override
   State<OrderItemWidget> createState() => _OrderItemWidgetState();
@@ -106,7 +106,7 @@ class _OrderItemWidgetState extends State<OrderItemWidget> {
 
             // Category Selection
             DropdownButtonFormField<String>(
-              value: _selectedCategory,
+              initialValue: _selectedCategory,
               decoration: InputDecoration(
                 labelText: 'Category',
                 border: OutlineInputBorder(
@@ -132,7 +132,7 @@ class _OrderItemWidgetState extends State<OrderItemWidget> {
             // Item Name / Selection
             if (_selectedCategory != null)
               DropdownButtonFormField<String>(
-                value: _selectedItem,
+                initialValue: _selectedItem,
                 decoration: InputDecoration(
                   labelText: 'Item',
                   border: OutlineInputBorder(
@@ -256,14 +256,14 @@ class _OrderItemWidgetState extends State<OrderItemWidget> {
                   ),
                   const SizedBox(height: 12),
                   DropdownButtonFormField<String>(
-                    value: _selectedUom,
+                    initialValue: _selectedUom,
                     decoration: InputDecoration(
                       labelText: 'UOM',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    items: MEASUREMENT_UNITS
+                    items: measurementUnits
                         .map(
                           (uom) =>
                               DropdownMenuItem(value: uom, child: Text(uom)),
@@ -309,14 +309,14 @@ class _OrderItemWidgetState extends State<OrderItemWidget> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<String>(
-                      value: _selectedUom,
+                      initialValue: _selectedUom,
                       decoration: InputDecoration(
                         labelText: 'UOM',
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      items: MEASUREMENT_UNITS
+                      items: measurementUnits
                           .map(
                             (uom) =>
                                 DropdownMenuItem(value: uom, child: Text(uom)),

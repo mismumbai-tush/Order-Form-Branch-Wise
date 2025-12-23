@@ -28,6 +28,7 @@ class SupabaseService {
 
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching customers: $e');
       return [];
     }
@@ -39,6 +40,7 @@ class SupabaseService {
       final response = await _client.from('master_items').select();
       return List<Map<String, dynamic>>.from(response);
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching items: $e');
       return [];
     }
@@ -50,6 +52,7 @@ class SupabaseService {
       await _client.from('orders').insert(orderData);
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('Error saving order: $e');
       return false;
     }
@@ -61,6 +64,7 @@ class SupabaseService {
       await _client.auth.signInWithPassword(email: email, password: password);
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('Error logging in: $e');
       return false;
     }
@@ -72,6 +76,7 @@ class SupabaseService {
       await _client.auth.signUp(email: email, password: password);
       return true;
     } catch (e) {
+      // ignore: avoid_print
       print('Error registering: $e');
       return false;
     }

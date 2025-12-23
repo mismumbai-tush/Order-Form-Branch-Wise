@@ -33,6 +33,7 @@ class GeminiService {
       // Parse response - simplified version
       return {'success': true, 'data': response.text};
     } catch (e) {
+      // ignore: avoid_print
       print('Error parsing order: $e');
       return {'success': false, 'error': e.toString()};
     }
@@ -69,6 +70,7 @@ class GeminiService {
 
       return response.text ?? '';
     } catch (e) {
+      // ignore: avoid_print
       print('Error generating summary: $e');
       return '';
     }

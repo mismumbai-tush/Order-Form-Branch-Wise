@@ -5,7 +5,7 @@ class Branch {
 
   const Branch({required this.id, required this.name, required this.location});
 
-  static List<Branch> getAllBranches() => [
+  static List<Branch> getAllBranches() => const [
     Branch(id: 'ahmedabad', name: 'Ahmedabad', location: 'Gujarat'),
     Branch(id: 'bengaluru', name: 'Bengaluru', location: 'Karnataka'),
     Branch(id: 'chandigarh', name: 'Chandigarh', location: 'Punjab'),
@@ -101,7 +101,7 @@ class ItemCategory {
     required this.items,
   });
 
-  static List<ItemCategory> getAllCategories() => [
+  static List<ItemCategory> getAllCategories() => const [
     ItemCategory(
       id: 'fabrics',
       name: 'Fabrics',
@@ -120,4 +120,4 @@ class ItemCategory {
   ];
 }
 
-const List<String> MEASUREMENT_UNITS = ['Meter', 'Piece', 'Dozen', 'Box', 'Kg'];
+const List<String> measurementUnits = ['Meter', 'Piece', 'Dozen', 'Box', 'Kg'];

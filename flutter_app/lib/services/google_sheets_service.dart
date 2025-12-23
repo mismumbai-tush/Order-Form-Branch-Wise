@@ -18,6 +18,7 @@ class GoogleSheetsService {
 
       return response.statusCode == 200;
     } catch (e) {
+      // ignore: avoid_print
       print('Error submitting to Google Sheets: $e');
       return false;
     }
@@ -42,6 +43,7 @@ class GoogleSheetsService {
       }
       return [];
     } catch (e) {
+      // ignore: avoid_print
       print('Error fetching master data: $e');
       return [];
     }

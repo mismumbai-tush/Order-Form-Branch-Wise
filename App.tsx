@@ -268,6 +268,18 @@ function App() {
     const myCustomers = await fetchCustomersByBranchAndSalesPerson(selectedBranchId, cleanSpName);
     console.log(`✅ RESULT: ${myCustomers.length} customers loaded`);
     setCustomers(myCustomers);
+    
+    // Clear customer name field when sales person changes (show fresh suggestions)
+    if (!isInitialLoad) {
+      setFormData(prev => ({
+        ...prev,
+        customerName: '',
+        customerEmail: '',
+        customerContactNo: '',
+        billingAddress: '',
+        deliveryAddress: ''
+      }));
+    }
   };
 
   // Auto-filter customers as user types - Load dynamically based on search
@@ -1339,7 +1351,8 @@ function App() {
                           value={formData.customerName}
                           onChange={handleFormChange}
                           autoComplete="off"
-                          placeholder="Type to search customers..."
+                          placeholder={formData.salesPerson ? "Type to search customers..." : "Select sales person first..."}
+                          disabled={!formData.salesPerson}
                           onClick={() => {
                             // Show dropdown when clicked (if customers exist)
                             if (customers.length > 0) {
@@ -1356,11 +1369,11 @@ function App() {
                             <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
                               {formData.customerName ? (
                                 <div className="text-xs font-semibold text-blue-900">
-                                  🔍 Showing <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching results
+                                  🔍 <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching customer(s) for {formData.salesPerson ? `<strong>${formData.salesPerson}</strong>` : 'selected sales person'}
                                 </div>
                               ) : (
                                 <div className="text-xs font-semibold text-blue-900">
-                                  📊 <span className="text-blue-600 font-bold">{customers.length}</span> customers available
+                                  👤 {formData.salesPerson ? `${formData.salesPerson}'s ` : ''}📊 <span className="text-blue-600 font-bold">{customers.length}</span> customer(s) - Type to filter
                                 </div>
                               )}
                             </div>

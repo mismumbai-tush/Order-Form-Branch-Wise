@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/constants.dart';
 import '../models/order_model.dart';
 import '../services/supabase_service.dart';
@@ -7,7 +6,7 @@ import '../services/google_sheets_service.dart';
 import '../widgets/order_item_widget.dart';
 
 class OrderFormScreen extends StatefulWidget {
-  const OrderFormScreen({Key? key}) : super(key: key);
+  const OrderFormScreen({super.key});
 
   @override
   State<OrderFormScreen> createState() => _OrderFormScreenState();
@@ -15,14 +14,21 @@ class OrderFormScreen extends StatefulWidget {
 
 class _OrderFormScreenState extends State<OrderFormScreen> {
   late final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  
+
   // Form controllers
-  late final TextEditingController _customerNameController = TextEditingController();
-  late final TextEditingController _customerPhoneController = TextEditingController();
-  late final TextEditingController _customerEmailController = TextEditingController();
-  late final TextEditingController _billingAddressController = TextEditingController();
-  late final TextEditingController _deliveryAddressController = TextEditingController();
-  late final TextEditingController _discountController = TextEditingController(text: '0');
+  late final TextEditingController _customerNameController =
+      TextEditingController();
+  late final TextEditingController _customerPhoneController =
+      TextEditingController();
+  late final TextEditingController _customerEmailController =
+      TextEditingController();
+  late final TextEditingController _billingAddressController =
+      TextEditingController();
+  late final TextEditingController _deliveryAddressController =
+      TextEditingController();
+  late final TextEditingController _discountController = TextEditingController(
+    text: '0',
+  );
 
   String? _selectedBranch;
   String? _selectedSalesPerson;
@@ -33,18 +39,20 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
   @override
   void initState() {
     super.initState();
-    _items.add(OrderLineItem(
-      id: '1',
-      category: '',
-      itemName: '',
-      color: '',
-      width: '',
-      uom: 'Meter',
-      quantity: '',
-      rate: 0,
-      discount: 0,
-      deliveryDate: DateTime.now(),
-    ));
+    _items.add(
+      OrderLineItem(
+        id: '1',
+        category: '',
+        itemName: '',
+        color: '',
+        width: '',
+        uom: 'Meter',
+        quantity: '',
+        rate: 0,
+        discount: 0,
+        deliveryDate: DateTime.now(),
+      ),
+    );
   }
 
   @override
@@ -60,18 +68,20 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
 
   void _addItemRow() {
     setState(() {
-      _items.add(OrderLineItem(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        category: '',
-        itemName: '',
-        color: '',
-        width: '',
-        uom: 'Meter',
-        quantity: '',
-        rate: 0,
-        discount: 0,
-        deliveryDate: DateTime.now(),
-      ));
+      _items.add(
+        OrderLineItem(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          category: '',
+          itemName: '',
+          color: '',
+          width: '',
+          uom: 'Meter',
+          quantity: '',
+          rate: 0,
+          discount: 0,
+          deliveryDate: DateTime.now(),
+        ),
+      );
     });
   }
 
@@ -110,12 +120,16 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
         'items': _items.map((item) => item.toJson()).toList(),
         'subtotal': _calculateSubtotal(),
         'discount': double.tryParse(_discountController.text) ?? 0,
-        'total': _calculateSubtotal() - (double.tryParse(_discountController.text) ?? 0),
+        'total':
+            _calculateSubtotal() -
+            (double.tryParse(_discountController.text) ?? 0),
         'order_date': DateTime.now().toIso8601String(),
       };
 
       // Submit to Google Sheets
-      final sheetSuccess = await GoogleSheetsService.submitOrderToSheet(orderData);
+      final sheetSuccess = await GoogleSheetsService.submitOrderToSheet(
+        orderData,
+      );
 
       // Also save to Supabase
       await SupabaseService.saveOrder(orderData);
@@ -140,20 +154,22 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
         _billingAddressController.clear();
         _deliveryAddressController.clear();
         _discountController.text = '0';
-        setState(() => _items = [
-          OrderLineItem(
-            id: '1',
-            category: '',
-            itemName: '',
-            color: '',
-            width: '',
-            uom: 'Meter',
-            quantity: '',
-            rate: 0,
-            discount: 0,
-            deliveryDate: DateTime.now(),
-          )
-        ]);
+        setState(
+          () => _items = [
+            OrderLineItem(
+              id: '1',
+              category: '',
+              itemName: '',
+              color: '',
+              width: '',
+              uom: 'Meter',
+              quantity: '',
+              rate: 0,
+              discount: 0,
+              deliveryDate: DateTime.now(),
+            ),
+          ],
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -178,11 +194,11 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await SupabaseService.logout();
-              if (mounted) {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/',
-                  (route) => false,
-                );
+              if (mounted && context.mounted) {
+                // ignore: use_build_context_synchronously
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil('/', (route) => false);
               }
             },
           ),
@@ -199,7 +215,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: DropdownButtonFormField<String>(
-                  value: _selectedBranch,
+                  initialValue: _selectedBranch,
                   decoration: InputDecoration(
                     labelText: 'Branch',
                     border: OutlineInputBorder(
@@ -207,16 +223,18 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                     ),
                   ),
                   items: Branch.getAllBranches()
-                      .map((b) => DropdownMenuItem(
-                            value: b.id,
-                            child: Text(b.name),
-                          ))
+                      .map(
+                        (b) =>
+                            DropdownMenuItem(value: b.id, child: Text(b.name)),
+                      )
                       .toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedBranch = value;
                       _selectedSalesPerson = null;
-                      _salesPersonList = SalesPerson.getSalesPersonsByBranch(value ?? '');
+                      _salesPersonList = SalesPerson.getSalesPersonsByBranch(
+                        value ?? '',
+                      );
                     });
                   },
                   validator: (value) =>
@@ -229,7 +247,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: DropdownButtonFormField<String>(
-                    value: _selectedSalesPerson,
+                    initialValue: _selectedSalesPerson,
                     decoration: InputDecoration(
                       labelText: 'Sales Person',
                       border: OutlineInputBorder(
@@ -237,17 +255,18 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                       ),
                     ),
                     items: _salesPersonList
-                        .map((sp) => DropdownMenuItem(
-                              value: sp.id,
-                              child: Text(sp.name),
-                            ))
+                        .map(
+                          (sp) => DropdownMenuItem(
+                            value: sp.id,
+                            child: Text(sp.name),
+                          ),
+                        )
                         .toList(),
                     onChanged: (value) {
                       setState(() => _selectedSalesPerson = value);
                     },
-                    validator: (value) => value == null
-                        ? 'Please select a sales person'
-                        : null,
+                    validator: (value) =>
+                        value == null ? 'Please select a sales person' : null,
                   ),
                 ),
 
@@ -256,10 +275,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Text(
                   'Customer Details',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -328,10 +344,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                 padding: EdgeInsets.symmetric(vertical: 24),
                 child: Text(
                   'Order Items',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -355,9 +368,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                 onPressed: _addItemRow,
                 icon: const Icon(Icons.add),
                 label: const Text('Add Item'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
               ),
 
               // Summary Section
@@ -441,8 +452,7 @@ class _OrderFormScreenState extends State<OrderFormScreen> {
                           width: 24,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation(Colors.white),
+                            valueColor: AlwaysStoppedAnimation(Colors.white),
                           ),
                         )
                       : const Text(
