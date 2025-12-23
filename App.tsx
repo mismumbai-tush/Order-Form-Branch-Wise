@@ -270,30 +270,52 @@ function App() {
     setCustomers(myCustomers);
   };
 
-  // Auto-filter customers as user types - Show BOTH Supabase + manually added customers
+  // Auto-filter customers as user types - Load dynamically based on search
   useEffect(() => {
-    // Combine Supabase customers + manually added customers (no duplicates)
-    const allAvailableCustomers = [
-      ...customers,
-      ...manuallyAddedCustomers.filter(m => 
-        !customers.find(c => c.name.toLowerCase() === m.name.toLowerCase())
-      )
-    ];
-
     if (!formData.customerName || formData.customerName.trim().length === 0) {
-      // Show all customers when search field is empty
-      setFilteredCustomers(allAvailableCustomers);
+      // Show all customers when search field is empty (no limit)
+      setFilteredCustomers(customers);
       return;
     }
 
-    // Filter by search term
-    const searchTerm = formData.customerName.toLowerCase();
-    const filtered = allAvailableCustomers.filter(c => 
-      (c.name || '').toLowerCase().includes(searchTerm)
-    );
+    // Search-based filtering - exact match priority
+    const searchTerm = formData.customerName.toLowerCase().trim();
     
-    setFilteredCustomers(filtered);
-  }, [formData.customerName, customers, manuallyAddedCustomers]);
+    // Filter customers with exact match priority
+    const filtered = customers.filter(c => {
+      const customerName = (c.name || '').toLowerCase();
+      
+      // Exact match first
+      if (customerName === searchTerm) return true;
+      
+      // Then starts with
+      if (customerName.startsWith(searchTerm)) return true;
+      
+      // Then contains
+      if (customerName.includes(searchTerm)) return true;
+      
+      return false;
+    });
+    
+    // Sort by relevance: exact match first, then starts with, then contains
+    filtered.sort((a, b) => {
+      const aName = (a.name || '').toLowerCase();
+      const bName = (b.name || '').toLowerCase();
+      
+      // Exact match gets priority
+      if (aName === searchTerm) return -1;
+      if (bName === searchTerm) return 1;
+      
+      // Starts with gets next priority
+      if (aName.startsWith(searchTerm) && !bName.startsWith(searchTerm)) return -1;
+      if (!aName.startsWith(searchTerm) && bName.startsWith(searchTerm)) return 1;
+      
+      return aName.localeCompare(bName);
+    });
+    
+    // Limit to 20 matching results for better performance
+    setFilteredCustomers(filtered.slice(0, 20));
+  }, [formData.customerName, customers]);
 
   // Auto-complete logic for Customers
   useEffect(() => {
@@ -1325,22 +1347,20 @@ function App() {
                             }
                           }}
                         />
-                        {/* Show dropdown: When field is focused OR has text AND customers exist */}
-                        {(formData.customerName || true) && customers.length > 0 && (
+                        {/* Show dropdown when typing OR when field is clicked AND customers exist */}
+                        {(formData.customerName || formData.customerName === '') && 
+                         !customers.find(c => c.name.toLowerCase() === formData.customerName.toLowerCase()) && 
+                         customers.length > 0 && (
                           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
-                            {/* Header showing total customers for this sales person */}
+                            {/* Header showing matching results */}
                             <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
-                              <div className="text-xs font-semibold text-blue-900">
-                                📊 Total Customers: <span className="text-blue-600 font-bold">{customers.length}</span>
-                              </div>
-                              {filteredCustomers.length < customers.length && formData.customerName && (
-                                <div className="text-xs text-blue-700 mt-1">
-                                  🔍 Showing <span className="font-bold">{filteredCustomers.length}</span> matching results
+                              {formData.customerName ? (
+                                <div className="text-xs font-semibold text-blue-900">
+                                  🔍 Showing <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching results
                                 </div>
-                              )}
-                              {!formData.customerName && (
-                                <div className="text-xs text-blue-700 mt-1">
-                                  ✨ Click on a customer name below or type to search
+                              ) : (
+                                <div className="text-xs font-semibold text-blue-900">
+                                  📊 <span className="text-blue-600 font-bold">{customers.length}</span> customers available
                                 </div>
                               )}
                             </div>
@@ -1351,7 +1371,16 @@ function App() {
                                 <div
                                   key={`${c.id}-${i}`}
                                   onClick={() => {
+                                    // Set customer name and close dropdown
                                     setFormData(prev => ({ ...prev, customerName: c.name }));
+                                    // Auto-fill customer details
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      customerEmail: c.email || '',
+                                      customerContactNo: c.contactNo || '',
+                                      billingAddress: c.billingAddress || '',
+                                      deliveryAddress: c.deliveryAddress || ''
+                                    }));
                                   }}
                                   className="px-3 py-2.5 cursor-pointer hover:bg-blue-100 border-b border-gray-100 text-sm transition-colors group"
                                 >
@@ -1364,7 +1393,7 @@ function App() {
                               ))
                             ) : (
                               <div className="px-3 py-2 text-sm text-gray-500 italic">
-                                {formData.customerName ? `No customers match "${formData.customerName}"` : 'No customers loaded'}
+                                No customers match "{formData.customerName}"
                               </div>
                             )}
                           </div>
