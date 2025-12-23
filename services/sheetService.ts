@@ -42,9 +42,9 @@ export const submitOrderToSheet = async (
   console.log("   Customer:", formData.customerName);
   console.log("   Items:", items.length);
 
-  // Create separate payload for EACH item to create separate rows in Google Sheet
-  const payloads = items.map((item, index) => ({
-    submissionId: `${Date.now()}-item-${index + 1}`,
+  // Create payload with ITEMS ARRAY (Google Apps Script expects this format)
+  const payload = {
+    submissionId: `${Date.now()}`,
     submissionDate: new Date().toISOString(),
     branch: formData.branch,
     salesPerson: formData.salesPerson,
@@ -55,21 +55,21 @@ export const submitOrderToSheet = async (
     billingAddress: formData.billingAddress,
     deliveryAddress: formData.deliveryAddress,
     orderDate: formData.orderDate,
-    // Single item object (not array) for this submission
-    category: item.category,
-    itemName: item.itemName || item.manualItemName,
-    color: item.color,
-    width: item.width,
-    quantity: item.quantity,
-    uom: item.uom,
-    rate: item.rate,
-    discount: item.discount,
-    deliveryDate: item.deliveryDate,
-    remark: item.remark,
-    totalAmount: (parseFloat(item.quantity) || 0) * (item.rate || 0),
-    itemNumber: index + 1,
-    totalItems: items.length
-  }));
+    // IMPORTANT: Items must be an array for Google Apps Script to process
+    items: items.map((item) => ({
+      category: item.category,
+      itemName: item.itemName || item.manualItemName,
+      color: item.color,
+      width: item.width,
+      quantity: item.quantity,
+      uom: item.uom,
+      rate: item.rate,
+      discount: item.discount,
+      deliveryDate: item.deliveryDate,
+      remark: item.remark,
+      totalAmount: (parseFloat(item.quantity) || 0) * (item.rate || 0)
+    }))
+  };
 
   try {
     const headers: Record<string, string> = {
@@ -85,71 +85,59 @@ export const submitOrderToSheet = async (
     console.log("   Sending request...");
     console.log("   Target URL:", targetUrl);
     console.log("   Headers:", { 'Content-Type': 'application/json', ...(apiKey ? { 'x-api-key': '[HIDDEN]' } : {}) });
-    console.log(`   Submitting ${payloads.length} item(s) as separate rows...`);
+    console.log(`   📝 Submitting order with ${payload.items.length} item(s)...`);
     
-    // Send each item as a separate request to create separate rows
-    let allSuccessful = true;
-    for (const payload of payloads) {
-      console.log(`   📝 Sending item ${payload.itemNumber}/${payload.totalItems}: ${payload.itemName}`);
-      
-      // For direct GAS URLs, use 'no-cors' mode to bypass CORS restrictions
-      // For proxy URLs, use normal mode to get proper CORS responses
-      const fetchOptions: RequestInit = {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(payload)
-      };
+    // Send single request with all items (Google Apps Script will create separate rows)
+    const fetchOptions: RequestInit = {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(payload)
+    };
 
-      if (!isUsingProxy) {
-        console.log("      Using no-cors mode for direct GAS URL");
-        fetchOptions.mode = 'no-cors';
-      }
-
-      const response = await fetch(targetUrl, fetchOptions);
-
-      // If using no-cors mode, we can't read the response body
-      if (!isUsingProxy && response.type === 'opaque') {
-        console.log(`      ✅ Item ${payload.itemNumber} request sent (no-cors mode)`);
-        continue;
-      }
-
-      console.log(`      Response status: ${response.status} ${response.statusText}`);
-      
-      let responseData;
-      try {
-        responseData = await response.json();
-      } catch (e) {
-        console.error("      ❌ Failed to parse response as JSON");
-        responseData = { text: await response.text() };
-      }
-
-      if (response.ok) {
-        console.log(`      ✅ Item ${payload.itemNumber} saved to Google Sheet`);
-      } else {
-        allSuccessful = false;
-        console.error(`      ❌ Item ${payload.itemNumber} failed with status ${response.status}`);
-        console.error("      Response:", responseData);
-
-        if (response.status === 401) {
-          if (isUsingProxy) {
-            console.error("🔐 PROXY AUTHENTICATION ERROR (401):");
-            console.error("   Fix: Invalid or missing API key in proxy configuration.");
-            console.error("   Action: Verify PROXY_API_KEY in Settings matches server config.");
-          } else {
-            console.error("🔐 GOOGLE APPS SCRIPT AUTHORIZATION ERROR (401):");
-            console.error("   Fix: GAS deployment does NOT have public access.");
-            console.error("   Action: Use a Proxy URL instead, or update GAS deployment to 'Who has access: Anyone'");
-          }
-        }
-      }
+    if (!isUsingProxy) {
+      console.log("      Using no-cors mode for direct GAS URL");
+      fetchOptions.mode = 'no-cors';
     }
 
-    if (allSuccessful) {
-      console.log(`✅ Successfully sent all ${payloads.length} item(s) to Google Sheet.`);
+    const response = await fetch(targetUrl, fetchOptions);
+
+    // If using no-cors mode, we can't read the response body
+    if (!isUsingProxy && response.type === 'opaque') {
+      console.log(`      ✅ Order request sent (no-cors mode)`);
+      console.log(`      ✅ Successfully sent order with ${payload.items.length} item(s) to Google Sheet.`);
+      return true;
+    }
+
+    console.log(`      Response status: ${response.status} ${response.statusText}`);
+    
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch (e) {
+      console.error("      ❌ Failed to parse response as JSON");
+      responseData = { text: await response.text() };
+    }
+
+    if (response.ok) {
+      console.log(`      ✅ All items saved to Google Sheet`);
+      console.log(`✅ Successfully sent order with ${payload.items.length} item(s) to Google Sheet.`);
       return true;
     } else {
-      console.error(`⚠️ Some items failed to submit. Check console for details.`);
-      return allSuccessful;
+      console.error(`      ❌ Order submission failed with status ${response.status}`);
+      console.error("      Response:", responseData);
+
+      if (response.status === 401) {
+        if (isUsingProxy) {
+          console.error("🔐 PROXY AUTHENTICATION ERROR (401):");
+          console.error("   Fix: Invalid or missing API key in proxy configuration.");
+          console.error("   Action: Verify PROXY_API_KEY in Settings matches server config.");
+        } else {
+          console.error("🔐 GOOGLE APPS SCRIPT AUTHORIZATION ERROR (401):");
+          console.error("   Fix: GAS deployment does NOT have public access.");
+          console.error("   Action: Use a Proxy URL instead, or update GAS deployment to 'Who has access: Anyone'");
+        }
+      }
+      return false;
     }
 
   } catch (error) {
