@@ -1353,34 +1353,22 @@ function App() {
                           autoComplete="off"
                           placeholder={formData.salesPerson ? "Type to search customers..." : "Select sales person first..."}
                           disabled={!formData.salesPerson}
-                          onClick={() => {
-                            // Show dropdown when clicked (if customers exist)
-                            if (customers.length > 0) {
-                              setFormData(prev => ({ ...prev, customerName: prev.customerName || '' }));
-                            }
-                          }}
                         />
-                        {/* Show dropdown when typing OR when field is clicked AND customers exist */}
-                        {(formData.customerName || formData.customerName === '') && 
+                        {/* Show dropdown ONLY when typing - not before */}
+                        {formData.customerName && formData.customerName.trim().length > 0 && 
                          !customers.find(c => c.name.toLowerCase() === formData.customerName.toLowerCase()) && 
                          customers.length > 0 && (
                           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
-                            {/* Header showing matching results */}
+                            {/* Show matching results header */}
                             <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
-                              {formData.customerName ? (
-                                <div className="text-xs font-semibold text-blue-900">
-                                  🔍 <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching customer(s) for {formData.salesPerson ? `<strong>${formData.salesPerson}</strong>` : 'selected sales person'}
-                                </div>
-                              ) : (
-                                <div className="text-xs font-semibold text-blue-900">
-                                  👤 {formData.salesPerson ? `${formData.salesPerson}'s ` : ''}📊 <span className="text-blue-600 font-bold">{customers.length}</span> customer(s) - Type to filter
-                                </div>
-                              )}
+                              <div className="text-xs font-semibold text-blue-900">
+                                🔍 <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching name(s)
+                              </div>
                             </div>
 
-                            {/* Customer list - Show filtered OR all customers */}
-                            {(formData.customerName ? filteredCustomers : customers).length > 0 ? (
-                              (formData.customerName ? filteredCustomers : customers).map((c, i) => (
+                            {/* Customer list - Show ONLY filtered customers */}
+                            {filteredCustomers.length > 0 ? (
+                              filteredCustomers.map((c, i) => (
                                 <div
                                   key={`${c.id}-${i}`}
                                   onClick={() => {
