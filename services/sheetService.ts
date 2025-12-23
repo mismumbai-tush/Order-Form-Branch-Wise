@@ -42,8 +42,9 @@ export const submitOrderToSheet = async (
   console.log("   Customer:", formData.customerName);
   console.log("   Items:", items.length);
 
-  const payload = {
-    submissionId: Date.now().toString(),
+  // Create separate payload for EACH item to create separate rows in Google Sheet
+  const payloads = items.map((item, index) => ({
+    submissionId: `${Date.now()}-item-${index + 1}`,
     submissionDate: new Date().toISOString(),
     branch: formData.branch,
     salesPerson: formData.salesPerson,
@@ -54,20 +55,21 @@ export const submitOrderToSheet = async (
     billingAddress: formData.billingAddress,
     deliveryAddress: formData.deliveryAddress,
     orderDate: formData.orderDate,
-    items: items.map(i => ({
-      category: i.category,
-      itemName: i.itemName || i.manualItemName,
-      color: i.color,
-      width: i.width,
-      quantity: i.quantity,
-      uom: i.uom,
-      rate: i.rate,
-      discount: i.discount,
-      deliveryDate: i.deliveryDate,
-      remark: i.remark,
-      totalAmount: (parseFloat(i.quantity) || 0) * (i.rate || 0)
-    }))
-  };
+    // Single item object (not array) for this submission
+    category: item.category,
+    itemName: item.itemName || item.manualItemName,
+    color: item.color,
+    width: item.width,
+    quantity: item.quantity,
+    uom: item.uom,
+    rate: item.rate,
+    discount: item.discount,
+    deliveryDate: item.deliveryDate,
+    remark: item.remark,
+    totalAmount: (parseFloat(item.quantity) || 0) * (item.rate || 0),
+    itemNumber: index + 1,
+    totalItems: items.length
+  }));
 
   try {
     const headers: Record<string, string> = {
@@ -83,74 +85,71 @@ export const submitOrderToSheet = async (
     console.log("   Sending request...");
     console.log("   Target URL:", targetUrl);
     console.log("   Headers:", { 'Content-Type': 'application/json', ...(apiKey ? { 'x-api-key': '[HIDDEN]' } : {}) });
+    console.log(`   Submitting ${payloads.length} item(s) as separate rows...`);
     
-    // For direct GAS URLs, use 'no-cors' mode to bypass CORS restrictions
-    // For proxy URLs, use normal mode to get proper CORS responses
-    const fetchOptions: RequestInit = {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(payload)
-    };
+    // Send each item as a separate request to create separate rows
+    let allSuccessful = true;
+    for (const payload of payloads) {
+      console.log(`   📝 Sending item ${payload.itemNumber}/${payload.totalItems}: ${payload.itemName}`);
+      
+      // For direct GAS URLs, use 'no-cors' mode to bypass CORS restrictions
+      // For proxy URLs, use normal mode to get proper CORS responses
+      const fetchOptions: RequestInit = {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      };
 
-    if (!isUsingProxy) {
-      console.log("   Using no-cors mode for direct GAS URL");
-      fetchOptions.mode = 'no-cors';
+      if (!isUsingProxy) {
+        console.log("      Using no-cors mode for direct GAS URL");
+        fetchOptions.mode = 'no-cors';
+      }
+
+      const response = await fetch(targetUrl, fetchOptions);
+
+      // If using no-cors mode, we can't read the response body
+      if (!isUsingProxy && response.type === 'opaque') {
+        console.log(`      ✅ Item ${payload.itemNumber} request sent (no-cors mode)`);
+        continue;
+      }
+
+      console.log(`      Response status: ${response.status} ${response.statusText}`);
+      
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        console.error("      ❌ Failed to parse response as JSON");
+        responseData = { text: await response.text() };
+      }
+
+      if (response.ok) {
+        console.log(`      ✅ Item ${payload.itemNumber} saved to Google Sheet`);
+      } else {
+        allSuccessful = false;
+        console.error(`      ❌ Item ${payload.itemNumber} failed with status ${response.status}`);
+        console.error("      Response:", responseData);
+
+        if (response.status === 401) {
+          if (isUsingProxy) {
+            console.error("🔐 PROXY AUTHENTICATION ERROR (401):");
+            console.error("   Fix: Invalid or missing API key in proxy configuration.");
+            console.error("   Action: Verify PROXY_API_KEY in Settings matches server config.");
+          } else {
+            console.error("🔐 GOOGLE APPS SCRIPT AUTHORIZATION ERROR (401):");
+            console.error("   Fix: GAS deployment does NOT have public access.");
+            console.error("   Action: Use a Proxy URL instead, or update GAS deployment to 'Who has access: Anyone'");
+          }
+        }
+      }
     }
 
-    const response = await fetch(targetUrl, fetchOptions);
-
-    // If using no-cors mode, we can't read the response body
-    if (!isUsingProxy && response.type === 'opaque') {
-      console.log("✅ Request sent successfully (no-cors mode)");
-      console.log("   Data has been submitted. Google Sheet should receive the data.");
-      return true;
-    }
-
-    console.log("   Response status:", response.status, response.statusText);
-    
-    let responseData;
-    try {
-      responseData = await response.json();
-    } catch (e) {
-      console.error("   ❌ Failed to parse response as JSON");
-      responseData = { text: await response.text() };
-    }
-
-    if (response.ok) {
-      console.log("✅ Successfully sent to Google Sheet.");
-      console.log("   Response:", responseData.gasBody || responseData);
+    if (allSuccessful) {
+      console.log(`✅ Successfully sent all ${payloads.length} item(s) to Google Sheet.`);
       return true;
     } else {
-      // Got HTTP error status
-      console.error(`❌ Request failed with status ${response.status}`);
-      console.error("   Response:", responseData);
-
-      if (response.status === 401) {
-        if (isUsingProxy) {
-          console.error("🔐 PROXY AUTHENTICATION ERROR (401):");
-          console.error("   Fix: Invalid or missing API key in proxy configuration.");
-          console.error("   Action: Verify PROXY_API_KEY in Settings matches server config.");
-        } else {
-          console.error("🔐 GOOGLE APPS SCRIPT AUTHORIZATION ERROR (401):");
-          console.error("   Fix: GAS deployment does NOT have public access.");
-          console.error("   Action: Use a Proxy URL instead, or update GAS deployment to 'Who has access: Anyone'");
-        }
-        return false;
-      }
-
-      if (response.status === 403) {
-        console.error("🔐 FORBIDDEN ERROR (403):");
-        console.error("   Fix: Access denied. Check deployment settings.");
-        return false;
-      }
-
-      if (response.status === 404) {
-        console.error("❌ NOT FOUND ERROR (404):");
-        console.error("   Fix: URL is invalid or endpoint doesn't exist.");
-        return false;
-      }
-
-      return false;
+      console.error(`⚠️ Some items failed to submit. Check console for details.`);
+      return allSuccessful;
     }
 
   } catch (error) {
@@ -163,27 +162,6 @@ export const submitOrderToSheet = async (
       console.warn("   Check your Google Sheet to verify if data was saved.");
       console.warn("   If not, consider using a Proxy URL in Settings for better error handling.");
       return false;
-    }
-
-    // If proxy fails, try direct GAS as fallback (if not already using it)
-    if (isUsingProxy && directGasUrl && directGasUrl !== targetUrl) {
-      console.warn("   Proxy failed, attempting fallback to direct GAS URL...");
-      
-      try {
-        const fallbackResponse = await fetch(directGasUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          mode: 'no-cors' // No-cors for direct GAS (won't get response, but request may be sent)
-        });
-        
-        console.warn("⚠️ Fallback request sent in no-cors mode.");
-        console.warn("   Data may have been saved to Google Sheet.");
-        return false; // Don't claim success when unverified
-      } catch (fallbackError) {
-        console.error("❌ Fallback also failed:", fallbackError);
-        return false;
-      }
     }
 
     return false;
