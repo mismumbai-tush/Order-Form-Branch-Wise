@@ -1517,13 +1517,14 @@ function App() {
                       placeholder="Type item name to search by category..."
                       disabled={!!currentItem.manualItemName}
                     />
-                    {/* Mobile-friendly vertical dropdown for items */}
-                    {(currentItem.itemName) && filteredItems.length > 0 && (
+                    {/* Show dropdown ONLY while typing (itemName has content) - NOT after selecting */}
+                    {(currentItem.itemName && currentItem.itemName.trim().length > 0) && filteredItems.length > 0 && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-48 overflow-y-auto">
                         {filteredItems.map(item => (
                           <div
                             key={item.id}
                             onClick={() => {
+                              // Select item AND close dropdown by clearing search text
                               setCurrentItem(prev => ({
                                 ...prev,
                                 itemName: item.itemName,
