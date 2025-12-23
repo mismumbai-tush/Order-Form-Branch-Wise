@@ -280,18 +280,34 @@ export const fetchCustomersByBranchAndSalesPerson = async (branchId: string, sal
 
     console.log('   Branch variations to search:', branchVariations);
 
-    // Fetch ALL customers (no join - sales_person_name is already stored in customers table)
-    const { data: allData, error: fetchError } = await supabase
-      .from('customers')
-      .select('*');
+    // Fetch ALL customers with pagination (Supabase has 1000 row limit per query)
+    let allData: any[] = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
 
-    if (fetchError) {
-      console.error('❌ Error fetching customers:', fetchError.message);
-      console.error('   Code:', fetchError.code);
-      return [];
+    while (hasMore) {
+      const { data: pageData, error: fetchError } = await supabase
+        .from('customers')
+        .select('*')
+        .range(page * pageSize, (page + 1) * pageSize - 1);
+
+      if (fetchError) {
+        console.error(`❌ Error fetching customers (page ${page}):`, fetchError.message);
+        console.error('   Code:', fetchError.code);
+        return [];
+      }
+
+      if (!pageData || pageData.length === 0) {
+        hasMore = false;
+      } else {
+        allData = [...allData, ...pageData];
+        console.log(`✅ Page ${page}: Fetched ${pageData.length} customers (total: ${allData.length})`);
+        page++;
+      }
     }
 
-    console.log(`✅ Fetched ${allData?.length || 0} total customers from database`);
+    console.log(`✅ Fetched ${allData.length} total customers from database`);
     
     if (!allData || allData.length === 0) {
       console.error('   ❌ Customers table is EMPTY - no data to load');
