@@ -1029,74 +1029,75 @@ function App() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 font-sans">
-        <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-6 animate-fade-in">
-          <div className="text-center">
-            <img 
-              src="https://www.ginzalimited.com/cdn/shop/files/Ginza_logo.jpg?v=1668509673&width=500" 
-              alt="GINZA Logo" 
-              className="h-20 mx-auto mb-4 object-contain" 
-            />
-            <h1 className="text-2xl font-bold text-gray-900">Ginza Industries Ltd.</h1>
-            <p className="text-gray-500">Order Portal</p>
+      <div className="min-h-screen bg-linear-to-br from-blue-600 via-blue-500 to-purple-600 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-white opacity-5 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-white opacity-5 rounded-full translate-x-1/2 translate-y-1/2"></div>
+        </div>
+
+        <div className="relative z-10 bg-white rounded-2xl shadow-2xl w-full max-w-md space-y-6 animate-fade-in p-8 border border-white/20 backdrop-blur-sm">
+          <div className="text-center space-y-2">
+            <div className="inline-block p-3 bg-linear-to-br from-blue-50 to-purple-50 rounded-lg mb-2">
+              <img 
+                src="https://www.ginzalimited.com/cdn/shop/files/Ginza_logo.jpg?v=1668509673&width=500" 
+                alt="GINZA Logo" 
+                className="h-16 w-auto object-contain" 
+              />
+            </div>
+            <h1 className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Ginza Industries</h1>
+            <p className="text-gray-600 font-medium">Order Management Portal</p>
+            <p className="text-xs text-gray-400">Secure access for authorized personnel</p>
           </div>
           
           {authError && (
-             <div className="bg-red-50 border-l-4 border-red-500 p-3 mb-2 rounded-r">
-                <div className="flex">
-                   <div className="flex-shrink-0">
-                      <X className="h-5 w-5 text-red-500" />
-                   </div>
-                   <div className="ml-3">
-                      <p className="text-sm text-red-700 font-bold">Authentication Failed</p>
-                      <p className="text-xs text-red-600 mt-1">{authError}</p>
-                   </div>
+             <div className="bg-red-50 border border-red-200 p-4 rounded-lg flex gap-3">
+                <X className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+                <div>
+                   <p className="text-sm text-red-700 font-bold">Authentication Failed</p>
+                   <p className="text-xs text-red-600 mt-1">{authError}</p>
                 </div>
              </div>
           )}
 
           {authMode === 'LOGIN' ? (
             <form onSubmit={handleSignIn} className="space-y-4 pt-2">
-              <div>
-                <Input 
-                   label="Email ID" 
-                   type="email" 
-                   placeholder="name@company.com" 
-                   required 
-                   value={loginEmail}
-                   onChange={(e) => setLoginEmail(e.target.value)}
-                />
-              </div>
-              <div>
-                <Input 
-                   label="Password" 
-                   type="password" 
-                   placeholder="••••••••" 
-                   required
-                   value={loginPassword}
-                   onChange={(e) => setLoginPassword(e.target.value)}
-                />
-              </div>
-              <Button type="submit" className="w-full py-3 mt-2 font-semibold" disabled={authLoading}>
+              <Input 
+                 label="Email ID" 
+                 type="email" 
+                 placeholder="name@company.com" 
+                 required 
+                 value={loginEmail}
+                 onChange={(e) => setLoginEmail(e.target.value)}
+              />
+              <Input 
+                 label="Password" 
+                 type="password" 
+                 placeholder="••••••••" 
+                 required
+                 value={loginPassword}
+                 onChange={(e) => setLoginPassword(e.target.value)}
+              />
+              <Button type="submit" className="w-full py-3 mt-4 font-semibold bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white" disabled={authLoading}>
                 {authLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <User className="w-4 h-4 mr-2" />}
                 {authLoading ? 'Signing In...' : 'Sign In'}
               </Button>
               
-              <div className="text-center pt-2">
-                 <p className="text-sm text-gray-600">
+              <div className="text-center pt-2 border-t border-gray-200">
+                 <p className="text-sm text-gray-600 mt-4">
                    Don't have an account?{' '}
                    <button 
                      type="button"
                      onClick={() => { setAuthMode('REGISTER'); setAuthError(null); }}
-                     className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                     className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                    >
-                     Create an account
+                     Create one here
                    </button>
                  </p>
               </div>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-3 pt-2">
+            <form onSubmit={handleRegister} className="space-y-4 pt-2">
               <div className="grid grid-cols-2 gap-3">
                 <Input 
                   label="First Name" 
@@ -1153,28 +1154,28 @@ function App() {
                   ))}
               </Select>
 
-              <Button type="submit" variant="success" className="w-full py-3 mt-2 font-semibold" disabled={authLoading}>
+              <Button type="submit" className="w-full py-3 mt-4 font-semibold bg-linear-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white" disabled={authLoading}>
                 {authLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <CheckCircle className="w-4 h-4 mr-2" />}
                 {authLoading ? 'Registering...' : 'Register & Login'}
               </Button>
 
-              <div className="text-center pt-2">
-                 <p className="text-sm text-gray-600">
+              <div className="text-center pt-2 border-t border-gray-200">
+                 <p className="text-sm text-gray-600 mt-4">
                    Already registered?{' '}
                    <button 
                      type="button"
                      onClick={() => { setAuthMode('LOGIN'); setAuthError(null); }}
-                     className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                     className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                    >
-                     Sign In here
+                     Sign in here
                    </button>
                  </p>
               </div>
             </form>
           )}
           
-          <div className="text-center text-xs text-gray-400 pt-4 border-t">
-            Secure System • Authorized Personnel Only
+          <div className="text-center text-xs text-gray-400 pt-4 border-t border-gray-200">
+            🔐 Secure System • Encrypted Connection • Authorized Personnel Only
           </div>
         </div>
       </div>
@@ -1268,7 +1269,7 @@ function App() {
         </div>
       </header>
 
-      <main className="flex-grow max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 w-full animate-fade-in">
+      <main className="grow max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4 sm:py-6 w-full animate-fade-in">
         
         {/* DESKTOP TOGGLE (Hidden on Mobile) */}
         <div className="hidden lg:flex justify-center mb-6">
@@ -1315,7 +1316,7 @@ function App() {
                   </Select>
 
                   <div className="flex items-end gap-2">
-                    <div className="flex-grow">
+                    <div className="grow">
                       <Select
                         label="Sales Person"
                         name="salesPerson"
@@ -1358,7 +1359,7 @@ function App() {
 
                   <div className="relative">
                     <div className="flex items-end gap-2">
-                      <div className="flex-grow">
+                      <div className="grow">
                         <Input
                           label="Customer Name"
                           name="customerName"
@@ -1374,7 +1375,7 @@ function App() {
                          customers.length > 0 && (
                           <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
                             {/* Show matching results header */}
-                            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
+                            <div className="sticky top-0 bg-linear-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
                               <div className="text-xs font-semibold text-blue-900">
                                 🔍 <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching name(s)
                               </div>
@@ -1767,7 +1768,7 @@ function App() {
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto custom-scrollbar flex-grow space-y-4">
+            <div className="p-4 overflow-y-auto custom-scrollbar grow space-y-4">
               <div className="bg-blue-50 p-3 rounded-lg space-y-2 text-sm">
                  <div className="flex justify-between">
                     <span className="text-gray-500">Customer:</span>

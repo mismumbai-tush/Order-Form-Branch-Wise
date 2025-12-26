@@ -3,30 +3,60 @@ import React, { InputHTMLAttributes } from 'react';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   containerClassName?: string;
+  error?: string;
+  helpText?: string;
 }
 
-export const Input: React.FC<InputProps> = ({ label, containerClassName = "", className = "", ...props }) => {
+export const Input: React.FC<InputProps> = ({ label, containerClassName = "", className = "", error, helpText, ...props }) => {
   return (
     <div className={`flex flex-col ${containerClassName}`}>
-      {label && <label className="mb-1 text-xs font-medium text-gray-700">{label}</label>}
+      {label && (
+        <label className="mb-2 text-sm font-semibold text-gray-700 block">
+          {label}
+          {props.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
       <input
-        className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2 ${className}`}
+        className={`w-full px-4 py-2.5 text-sm border rounded-lg bg-white text-gray-900 placeholder-gray-400 transition-all focus:outline-none ${
+          error
+            ? 'border-red-500 focus:ring-2 focus:ring-red-200'
+            : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+        } disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed ${className}`}
         {...props}
       />
+      {error && <p className="mt-1 text-xs text-red-600 font-medium">{error}</p>}
+      {helpText && <p className="mt-1 text-xs text-gray-500">{helpText}</p>}
     </div>
   );
 };
 
-export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string, containerClassName?: string }> = ({ label, containerClassName = "", className = "", children, ...props }) => {
+export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string, containerClassName?: string, error?: string, helpText?: string }> = ({ label, containerClassName = "", className = "", error, helpText, children, ...props }) => {
   return (
     <div className={`flex flex-col ${containerClassName}`}>
-      {label && <label className="mb-1 text-xs font-medium text-gray-700">{label}</label>}
+      {label && (
+        <label className="mb-2 text-sm font-semibold text-gray-700 block">
+          {label}
+          {props.required && <span className="text-red-500 ml-1">*</span>}
+        </label>
+      )}
       <select
-        className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2 ${className}`}
+        className={`w-full px-4 py-2.5 text-sm border rounded-lg bg-white text-gray-900 transition-all focus:outline-none appearance-none ${
+          error
+            ? 'border-red-500 focus:ring-2 focus:ring-red-200'
+            : 'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200'
+        } disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed ${className}`}
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 12px center',
+          paddingRight: '36px'
+        }}
         {...props}
       >
         {children}
       </select>
+      {error && <p className="mt-1 text-xs text-red-600 font-medium">{error}</p>}
+      {helpText && <p className="mt-1 text-xs text-gray-500">{helpText}</p>}
     </div>
   );
 };
