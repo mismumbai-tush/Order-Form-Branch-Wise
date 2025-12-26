@@ -8,9 +8,9 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 export const Input: React.FC<InputProps> = ({ label, containerClassName = "", className = "", ...props }) => {
   return (
     <div className={`flex flex-col ${containerClassName}`}>
-      {label && <label className="mb-2 text-sm font-semibold text-gray-800">{label}</label>}
+      {label && <label className="mb-1 text-xs font-medium text-gray-700">{label}</label>}
       <input
-        className={`w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-500 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed ${className}`}
+        className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2 ${className}`}
         {...props}
       />
     </div>
@@ -20,15 +20,9 @@ export const Input: React.FC<InputProps> = ({ label, containerClassName = "", cl
 export const Select: React.FC<React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string, containerClassName?: string }> = ({ label, containerClassName = "", className = "", children, ...props }) => {
   return (
     <div className={`flex flex-col ${containerClassName}`}>
-      {label && <label className="mb-2 text-sm font-semibold text-gray-800">{label}</label>}
+      {label && <label className="mb-1 text-xs font-medium text-gray-700">{label}</label>}
       <select
-        className={`w-full px-4 py-3 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 transition-all focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed appearance-none ${className}`}
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23374151' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'right 12px center',
-          paddingRight: '36px'
-        }}
+        className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm border p-2 ${className}`}
         {...props}
       >
         {children}
