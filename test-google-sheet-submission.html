@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .success {
+            color: #00ff00;
+        }
+        .error {
+            color: #ff4444;
+        }
+        .warning {
+            color: #ffaa00;
+        }
+        .info {
+            color: #00aaff;
+        }
+        hr {
+            border: none;
+            border-top: 2px solid #ddd;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Google Sheet Debug Test</h1>
+        
+        <div class="section">
+            <h2>1️⃣ Configuration</h2>
+            <label>Google Apps Script URL:</label>
+            <input type="text" id="gasUrl" value="https://script.google.com/macros/s/AKfycbwMfDlawVVHEJfykwLcruYUNhpAgBMSU7rl06kupKRXkMWUFvkJrv4E-FRw2_FB631t0A/exec" placeholder="Paste your Google Apps Script URL here">
+            
+            <button onclick="testConnection()">🧪 Test Connection</button>
+        </div>
+
+        <div class="section">
+            <h2>2️⃣ Test Data</h2>
+            <label>Customer Name:</label>
+            <input type="text" id="customerName" value="Test Customer" placeholder="Enter customer name">
+            
+            <label>Customer Email:</label>
+            <input type="text" id="customerEmail" value="test@example.com" placeholder="Enter customer email">
+            
+            <label>Item Name:</label>
+            <input type="text" id="itemName" value="Test Item" placeholder="Enter item name">
+            
+            <label>Quantity:</label>
+            <input type="number" id="quantity" value="5" placeholder="Enter quantity">
+            
+            <button onclick="submitTestData()">📤 Submit Test Data to Google Sheet</button>
+        </div>
+
+        <div class="section">
+            <h2>3️⃣ Console Output</h2>
+            <div class="output" id="output">
+                <span class="info">Ready to test. Click buttons above to start.</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4️⃣ Diagnostics</h2>
+            <button onclick="runDiagnostics()">🏥 Run Full Diagnostics</button>
+            <button onclick="clearOutput()">🗑️ Clear Output</button>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = `[${timestamp}] ${message}\n`;
+            output.appendChild(span);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '<span class="info">Output cleared.</span>';
+        }
+
+        async function testConnection() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+            
+            log('🔗 Testing connection to Google Apps Script...', 'info');
+            log(`URL: ${url}`, 'info');
+
+            if (!url || url.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+                log('❌ ERROR: URL not configured!', 'error');
+                log('Please paste your Google Apps Script URL above', 'error');
+                return;
+            }
+
+            if (!url.includes('/exec')) {
+                log('⚠️ WARNING: URL should end with /exec', 'warning');
+            }
+
+            try {
+                const testPayload = {
+                    submissionId: Date.now(),
+                    submissionDate: new Date().toISOString(),
+                    test: true,
+                    customerName: "Connection Test"
+                };
+
+                log('📤 Sending test request...', 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(testPayload),
+                    mode: 'no-cors'
+                });
+
+                log('✅ SUCCESS: Test request sent!', 'success');
+                log(`Status: ${response.status} ${response.statusText}`, 'success');
+                log('⚠️ Note: Using no-cors mode, response details may be limited', 'warning');
+                log('Check your Google Sheet to see if test data appears', 'info');
+
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                log('Network error occurred. Check browser console for details.', 'error');
+            }
+        }
+
+        async function submitTestData() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const itemName = document.getElementById('itemName').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!url) {
+                log('❌ ERROR: Google Apps Script URL not configured!', 'error');
+                return;
+            }
+
+            const payload = {
+                submissionId: Date.now(),
+                submissionDate: new Date().toISOString(),
+                branch: 'Test Branch',
+                salesPerson: 'Test Sales Person',
+                customerName: customerName,
+                customerEmail: customerEmail,
+                customerContactNo: '1234567890',
+                billingAddress: 'Test Address',
+                deliveryAddress: 'Test Address',
+                orderDate: new Date().toISOString().split('T')[0],
+                items: [
+                    {
+                        category: 'Test',
+                        itemName: itemName,
+                        color: 'Test',
+                        width: 'Test',
+                        quantity: quantity,
+                        uom: 'Pcs',
+                        rate: 100,
+                        discount: 0,
+                        deliveryDate: new Date().toISOString().split('T')[0],
+                        remark: 'Test submission'
+                    }
+                ]
+            };
+
+            log('📝 Payload to be submitted:', 'info');
+            log(JSON.stringify(payload, null, 2), 'info');
+            log('', 'info');
+            log('📤 Submitting to Google Sheet...', 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    mode: 'no-cors'
+                });
+
+                log('✅ SUCCESS: Data submitted!', 'success');
+                log('Check your Google Sheet in 5-10 seconds', 'success');
+                log('Look for rows with Customer Name: ' + customerName, 'success');
+                log('Look for Customer Email: ' + customerEmail, 'success');
+
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+            }
+        }
+
+        function runDiagnostics() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+
+            log('🏥 RUNNING DIAGNOSTICS...', 'info');
+            log('', 'info');
+
+            // Check URL
+            log('1️⃣ Checking Google Apps Script URL...', 'info');
+            if (!url) {
+                log('   ❌ URL is empty!', 'error');
+            } else if (url.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+                log('   ❌ URL contains placeholder text!', 'error');
+            } else if (!url.startsWith('https://script.google.com')) {
+                log('   ⚠️ URL does not look like Google Apps Script URL', 'warning');
+            } else if (!url.includes('/exec')) {
+                log('   ⚠️ URL should end with /exec', 'warning');
+            } else {
+                log('   ✅ URL looks valid', 'success');
+            }
+            log('   URL: ' + (url.substring(0, 80) + '...'), 'info');
+            log('', 'info');
+
+            // Check Browser Support
+            log('2️⃣ Checking Browser Support...', 'info');
+            if (window.fetch) {
+                log('   ✅ Fetch API supported', 'success');
+            } else {
+                log('   ❌ Fetch API not supported (use modern browser)', 'error');
+            }
+            if (window.localStorage) {
+                log('   ✅ LocalStorage supported', 'success');
+            } else {
+                log('   ❌ LocalStorage not supported', 'error');
+            }
+            log('', 'info');
+
+            // Check Network Status
+            log('3️⃣ Checking Network Status...', 'info');
+            if (navigator.onLine) {
+                log('   ✅ Device is online', 'success');
+            } else {
+                log('   ❌ Device is offline!', 'error');
+            }
+            log('', 'info');
+
+            // Check Required Fields
+            log('4️⃣ Checking Form Fields...', 'info');
+            const fields = {
+                customerName: document.getElementById('customerName').value,
+                customerEmail: document.getElementById('customerEmail').value,
+                itemName: document.getElementById('itemName').value,
+                quantity: document.getElementById('quantity').value
+            };
+
+            for (const [field, value] of Object.entries(fields)) {
+                if (value) {
+                    log(`   ✅ ${field}: ${value}`, 'success');
+                } else {
+                    log(`   ⚠️ ${field}: empty`, 'warning');
+                }
+            }
+            log('', 'info');
+
+            // Summary
+            log('5️⃣ SUMMARY:', 'info');
+            log('   ✅ All checks passed! Ready to submit.', 'success');
+            log('   👉 Click "Submit Test Data" to send to Google Sheet', 'info');
+        }
+
+        // Run initial diagnostics on page load
+        window.addEventListener('load', () => {
+            log('📋 Page loaded. Click buttons to start testing.', 'info');
+            log('Make sure to paste your Google Apps Script URL above.', 'warning');
+        });
+    </script>
+</body>
+</html>
