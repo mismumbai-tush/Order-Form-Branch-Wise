@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, History, Wand2, Loader2, Printer, MapPin, RefreshCcw, Edit2, LogOut, User, CheckCircle, HardDrive, UploadCloud, FileSpreadsheet, X, Eye, Settings, Copy, Check, Users, Package, HelpCircle, RefreshCw, Home, Download, Menu } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { BRANCHES, UNIT_CATEGORIES, MEASUREMENT_UNITS, SALES_PERSONS, BRANCH_ID_MAPPING } from './constants';
+import { BRANCHES, UNIT_CATEGORIES, MEASUREMENT_UNITS, SALES_PERSONS, BRANCH_ID_MAPPING, GOOGLE_SCRIPT_URL } from './constants';
 import { FormMode, OrderFormData, OrderLineItem, SubmittedOrder, SalesPerson, Branch, RegisteredUser, Customer, Item } from './types';
 import { Button } from './components/Button.tsx';
 import { Input, Select } from './components/Input.tsx';
@@ -141,8 +141,21 @@ function App() {
       }
     }
 
+    // 🔧 FIX: Clear outdated Google Script URLs from localStorage if they don't match current config
+    // This ensures we always use the latest URL from constants.ts
     const savedUrl = localStorage.getItem('google_script_url');
-    if (savedUrl) setGoogleScriptUrl(savedUrl);
+    const currentUrl = GOOGLE_SCRIPT_URL;
+    
+    // If saved URL exists and differs from current config, clear it to use the new one
+    if (savedUrl && savedUrl !== currentUrl && currentUrl && !currentUrl.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+      console.log('🔧 Updating Google Script URL from localStorage...');
+      console.log('   Old (cached):', savedUrl.substring(0, 60) + '...');
+      console.log('   New (from config):', currentUrl.substring(0, 60) + '...');
+      localStorage.removeItem('google_script_url');
+      setGoogleScriptUrl(currentUrl);
+    } else if (savedUrl) {
+      setGoogleScriptUrl(savedUrl);
+    }
 
     const savedProxyUrl = localStorage.getItem('proxy_url');
     if (savedProxyUrl) setProxyUrl(savedProxyUrl);
