@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Sheet Data Saving</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #d32f2f;
+            border-bottom: 3px solid #d32f2f;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fafafa;
+            border-left: 4px solid #d32f2f;
+            border-radius: 4px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: monospace;
+        }
+        button {
+            background: #d32f2f;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #b71c1c;
+        }
+        .output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 12px;
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff4444; }
+        .warning { color: #ffaa00; }
+        .info { color: #00aaff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Test Google Sheet Data Saving</h1>
+        
+        <div class="section">
+            <h2>❌ Issue: Data Not Saving to Google Sheet</h2>
+            <p>Use this tool to diagnose why form data is not saving.</p>
+        </div>
+
+        <div class="section">
+            <h2>1️⃣ Test the Current Google Apps Script URL</h2>
+            <p>This is your current configured URL:</p>
+            <textarea id="gasUrl" style="height: 60px;">https://script.google.com/macros/s/AKfycbwMfDlawVVHEJfykwLcruYUNhpAgBMSU7rl06kupKRXkMWUFvkJrv4E-FRw2_FB631t0A/exec</textarea>
+            
+            <button onclick="testCurrentUrl()">🧪 Test Current URL</button>
+        </div>
+
+        <div class="section">
+            <h2>2️⃣ Send Test Data</h2>
+            <label>Branch:</label>
+            <input type="text" id="branch" value="Mumbai" placeholder="Branch name">
+            
+            <label>Customer Name:</label>
+            <input type="text" id="customerName" value="Test Customer" placeholder="Customer name">
+            
+            <label>Customer Email:</label>
+            <input type="email" id="customerEmail" value="test@example.com" placeholder="customer@email.com">
+            
+            <label>Item Name:</label>
+            <input type="text" id="itemName" value="Test Item" placeholder="Item name">
+            
+            <label>Quantity:</label>
+            <input type="number" id="quantity" value="5" placeholder="Quantity">
+            
+            <button onclick="testDataSubmission()">📤 Send Test Data to Google Sheet</button>
+        </div>
+
+        <div class="section">
+            <h2>3️⃣ Console Output</h2>
+            <div class="output" id="output">
+                <span class="info">Ready to test. Click buttons above.</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>4️⃣ Diagnostics</h2>
+            <button onclick="runDiagnostics()">🏥 Run Full Diagnostics</button>
+            <button onclick="clearOutput()">🗑️ Clear Output</button>
+        </div>
+
+        <div class="section" style="background: #fff3cd; border-left-color: #ff9800;">
+            <h3>📋 After Testing:</h3>
+            <p>1. Check your Google Sheet for new rows (wait 5-10 seconds)</p>
+            <p>2. If no data appears → Read: GOOGLE_SHEET_NOT_SAVING_FIX.md</p>
+            <p>3. If you see error → Follow the specific fix for that error</p>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const span = document.createElement('span');
+            span.className = type;
+            span.textContent = `[${timestamp}] ${message}\n`;
+            output.appendChild(span);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearOutput() {
+            output.innerHTML = '<span class="info">Output cleared.</span>';
+        }
+
+        async function testCurrentUrl() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+            
+            log('🔗 Testing current Google Apps Script URL...', 'info');
+            log(`URL: ${url}`, 'info');
+
+            if (!url || url.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+                log('❌ ERROR: URL not configured!', 'error');
+                return;
+            }
+
+            if (!url.includes('/exec')) {
+                log('⚠️ WARNING: URL should end with /exec', 'warning');
+            }
+
+            try {
+                const testPayload = {
+                    submissionId: Date.now(),
+                    submissionDate: new Date().toISOString(),
+                    branch: 'Test',
+                    customerName: 'URL Test',
+                    customerEmail: 'test@url.com',
+                    items: [{itemName: 'Test', quantity: '1'}]
+                };
+
+                log('📤 Sending test request...', 'info');
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(testPayload),
+                    mode: 'no-cors'
+                });
+
+                log('✅ Request sent successfully!', 'success');
+                log('⏱️ Waiting 5 seconds... then check your Google Sheet', 'info');
+                log('📝 Look for a new row with:', 'info');
+                log('   • Customer Name: "URL Test"', 'info');
+                log('   • Customer Email: "test@url.com"', 'info');
+
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                log('This might mean the URL is incorrect or the script is not public', 'warning');
+            }
+        }
+
+        async function testDataSubmission() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+            const branch = document.getElementById('branch').value;
+            const customerName = document.getElementById('customerName').value;
+            const customerEmail = document.getElementById('customerEmail').value;
+            const itemName = document.getElementById('itemName').value;
+            const quantity = document.getElementById('quantity').value;
+
+            if (!url) {
+                log('❌ ERROR: Google Apps Script URL is empty!', 'error');
+                return;
+            }
+
+            const payload = {
+                submissionId: Date.now(),
+                submissionDate: new Date().toISOString(),
+                branch: branch,
+                salesPerson: 'Test Sales Person',
+                customerName: customerName,
+                customerEmail: customerEmail,
+                customerContactNo: '1234567890',
+                billingAddress: 'Test Address',
+                deliveryAddress: 'Test Address',
+                orderDate: new Date().toISOString().split('T')[0],
+                items: [
+                    {
+                        category: 'Test',
+                        itemName: itemName,
+                        color: 'Test',
+                        width: 'Test',
+                        quantity: quantity,
+                        uom: 'Pcs',
+                        rate: 100,
+                        discount: 0,
+                        deliveryDate: new Date().toISOString().split('T')[0],
+                        remark: 'Test submission'
+                    }
+                ]
+            };
+
+            log('📝 Sending test data to Google Sheet...', 'info');
+            log('', 'info');
+            log('Payload details:', 'info');
+            log(`  Branch: ${branch}`, 'info');
+            log(`  Customer: ${customerName}`, 'info');
+            log(`  Email: ${customerEmail}`, 'info');
+            log(`  Item: ${itemName}`, 'info');
+            log(`  Qty: ${quantity}`, 'info');
+            log('', 'info');
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(payload),
+                    mode: 'no-cors'
+                });
+
+                log('✅ SUCCESS: Data sent to Google Sheet!', 'success');
+                log('⏱️ Waiting for sheet update (5-10 seconds)...', 'info');
+                log('📋 Check your Google Sheet for:', 'info');
+                log(`   • New row in "${branch}" sheet OR main sheet`, 'info');
+                log(`   • Customer Name: ${customerName}`, 'info');
+                log(`   • Email (Column 3): ${customerEmail}`, 'info');
+                log('', 'success');
+                log('✅ If data appears → Everything works!', 'success');
+                log('❌ If no data appears → Check GOOGLE_SHEET_NOT_SAVING_FIX.md', 'warning');
+
+            } catch (error) {
+                log(`❌ ERROR: ${error.message}`, 'error');
+                log('Network error - Check browser console (F12) for details', 'error');
+            }
+        }
+
+        function runDiagnostics() {
+            clearOutput();
+            const url = document.getElementById('gasUrl').value;
+
+            log('🏥 RUNNING DIAGNOSTICS...', 'info');
+            log('', 'info');
+
+            // Check URL
+            log('1️⃣ Google Apps Script URL Check', 'info');
+            if (!url) {
+                log('   ❌ URL is empty!', 'error');
+            } else if (url.includes('YOUR_GOOGLE_APPS_SCRIPT')) {
+                log('   ❌ URL contains placeholder!', 'error');
+            } else if (!url.startsWith('https://script.google.com')) {
+                log('   ⚠️ URL does not look like Google Apps Script', 'warning');
+            } else if (!url.includes('/exec')) {
+                log('   ⚠️ URL should end with /exec (not /dev)', 'warning');
+            } else {
+                log('   ✅ URL format looks correct', 'success');
+            }
+            log('', 'info');
+
+            // Check deployment
+            log('2️⃣ Google Apps Script Deployment', 'info');
+            log('   ✅ Go to Google Sheet → Extensions → Apps Script', 'info');
+            log('   ✅ Deploy → Manage Deployments', 'info');
+            log('   ✅ Edit deployment → "Who has access" must be "Anyone"', 'warning');
+            log('   ✅ If set to "Me only" → This is the problem!', 'error');
+            log('', 'info');
+
+            // Check function
+            log('3️⃣ Google Apps Script Function', 'info');
+            log('   ✅ Must have: function doPost(e) { ... }', 'info');
+            log('   ✅ Must have: JSON.parse(e.postData.contents)', 'info');
+            log('   ✅ Must have: sheet.appendRow([])', 'info');
+            log('   ✅ Must have: return ContentService...', 'info');
+            log('', 'info');
+
+            // Check form
+            log('4️⃣ Form Settings', 'info');
+            log('   ✅ Form Settings must have Google Apps Script URL', 'info');
+            log('   ✅ Save Settings and Refresh page', 'info');
+            log('', 'info');
+
+            // Summary
+            log('5️⃣ MOST COMMON ISSUES (In Order)', 'warning');
+            log('   1. Deployment NOT set to "Anyone" → FIX THIS FIRST!', 'error');
+            log('   2. URL in form Settings is wrong or empty', 'error');
+            log('   3. doPost() function missing or incorrect', 'error');
+            log('   4. Sheet name mismatch in script', 'error');
+            log('', 'info');
+            log('📖 Read: GOOGLE_SHEET_NOT_SAVING_FIX.md for detailed fixes', 'info');
+        }
+
+        window.addEventListener('load', () => {
+            log('✅ Test tool loaded. Click buttons to diagnose.', 'success');
+            log('⚠️ Most common issue: Google Apps Script not set to "Anyone"', 'warning');
+        });
+    </script>
+</body>
+</html>
