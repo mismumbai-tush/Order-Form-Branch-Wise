@@ -99,20 +99,6 @@ function App() {
   const [proxyUrl, setProxyUrl] = useState('');
   const [isCopied, setIsCopied] = useState(false);
 
-  // Customer Management State
-  const [showCustomerModal, setShowCustomerModal] = useState(false);
-  const [customerFormData, setCustomerFormData] = useState({
-    name: '',
-    email: '',
-    contactNo: '',
-    billingAddress: '',
-    deliveryAddress: '',
-    branch: '',
-  });
-  const [isAddingCustomer, setIsAddingCustomer] = useState(false);
-  const [bulkImportMessage, setBulkImportMessage] = useState('');
-  const [isBulkImporting, setIsBulkImporting] = useState(false);
-
   // PWA Install State
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
 
@@ -955,56 +941,6 @@ function App() {
     console.log('Categories with items:', [...new Set(dbItems.map(i => i.category))]);
   };
 
-  // Bulk import 200+ customers from JSON data
-  const importBulkCustomerData = async () => {
-    setBulkImportMessage('⏳ Starting bulk import...');
-    
-    try {
-      // This is the customer data structure based on the user's provided JSON
-      // Fields must match the Supabase schema: sales_person_id, name, email, contact_no, billing_address, delivery_address, branch, sales_person_name
-      const bulkCustomers = [
-        // Sample data - the actual 200+ customers would go here
-        // For demonstration, showing the structure
-        {
-          name: 'Kamlesh Sutar - Mumbai HO',
-          email: 'sample1@ginzaindustries.com',
-          contact_no: '9876543210',
-          billing_address: 'Mumbai HO',
-          delivery_address: 'Mumbai HO',
-          sales_person_id: session?.salesPerson.id || 'kamlesh_sutar',
-          branch: session?.branch.name || 'Mumbai HO',
-          sales_person_name: session?.salesPerson.name || 'Kamlesh Sutar'
-        }
-      ];
-
-      // Split into chunks of 100 for processing
-      const chunkSize = 100;
-      for (let i = 0; i < bulkCustomers.length; i += chunkSize) {
-        const chunk = bulkCustomers.slice(i, i + chunkSize);
-        const chunkNum = Math.floor(i / chunkSize) + 1;
-        const totalChunks = Math.ceil(bulkCustomers.length / chunkSize);
-        
-        setBulkImportMessage(`⏳ Processing chunk ${chunkNum}/${totalChunks}... (${i + 1}/${bulkCustomers.length} customers)`);
-        
-        const result = await bulkUpsertCustomers(chunk);
-        
-        if (!result) {
-          setBulkImportMessage(`⚠️ Chunk ${chunkNum} encountered an issue`);
-        }
-      }
-
-      setBulkImportMessage(`✅ Bulk import completed! ${bulkCustomers.length} customers imported.`);
-      
-      // Reload customers list
-      if (formData.salesPerson) {
-        handleSalesPersonChange(formData.salesPerson, true);
-      }
-    } catch (error: any) {
-      setBulkImportMessage(`❌ Import failed: ${error.message}`);
-      console.error('Bulk import error:', error);
-    }
-  };
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setIsCopied(true);
@@ -1296,15 +1232,6 @@ function App() {
                   <HardDrive className="w-4 h-4 mr-1" /> Database
                 </Button>
               )}
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowCustomerModal(true)} 
-                title="Customer Management"
-                className="text-green-600 hover:text-green-700 hover:bg-green-50"
-              >
-                <Users className="w-4 h-4 mr-1" /> Customers
-              </Button>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -2150,163 +2077,6 @@ function App() {
              Submit & Review ({items.length})
           </Button>
       </div>
-
-      {/* CUSTOMER MANAGEMENT MODAL */}
-      {showCustomerModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex justify-between items-center">
-              <h2 className="text-xl font-bold">👥 Customer Management</h2>
-              <button 
-                onClick={() => setShowCustomerModal(false)}
-                className="hover:bg-blue-500 p-1 rounded"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* ADD NEW CUSTOMER SECTION */}
-              <div className="border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-                <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center">
-                  <Plus className="w-4 h-4 mr-2 text-blue-600" />
-                  Add New Customer
-                </h3>
-
-                <div className="space-y-3">
-                  <Input
-                    label="Customer Name"
-                    placeholder="Enter customer name"
-                    value={customerFormData.name}
-                    onChange={(e) => setCustomerFormData({...customerFormData, name: e.target.value})}
-                  />
-                  <Input
-                    label="Email"
-                    type="email"
-                    placeholder="customer@email.com"
-                    value={customerFormData.email}
-                    onChange={(e) => setCustomerFormData({...customerFormData, email: e.target.value})}
-                  />
-                  <Input
-                    label="Contact No"
-                    placeholder="+91..."
-                    value={customerFormData.contactNo}
-                    onChange={(e) => setCustomerFormData({...customerFormData, contactNo: e.target.value})}
-                  />
-                  <Input
-                    label="Billing Address"
-                    placeholder="Enter billing address"
-                    value={customerFormData.billingAddress}
-                    onChange={(e) => setCustomerFormData({...customerFormData, billingAddress: e.target.value})}
-                  />
-                  <Input
-                    label="Delivery Address"
-                    placeholder="Enter delivery address"
-                    value={customerFormData.deliveryAddress}
-                    onChange={(e) => setCustomerFormData({...customerFormData, deliveryAddress: e.target.value})}
-                  />
-                  <Select
-                    label="Branch"
-                    value={customerFormData.branch}
-                    onChange={(e) => setCustomerFormData({...customerFormData, branch: e.target.value})}
-                  >
-                    <option value="">-- Select Branch --</option>
-                    {BRANCHES.map(b => (
-                      <option key={b.id} value={b.name}>{b.name}</option>
-                    ))}
-                  </Select>
-
-                  <Button 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
-                    onClick={async () => {
-                      if (!customerFormData.name.trim()) {
-                        alert('Please enter customer name');
-                        return;
-                      }
-                      setIsAddingCustomer(true);
-                      try {
-                        const result = await createNewCustomer(
-                          session?.salesPerson.name || '',
-                          {
-                            ...formData,
-                            customerName: customerFormData.name,
-                            customerEmail: customerFormData.email,
-                            customerContactNo: customerFormData.contactNo,
-                            billingAddress: customerFormData.billingAddress,
-                            deliveryAddress: customerFormData.deliveryAddress,
-                            branch: customerFormData.branch || session?.branch.name || ''
-                          }
-                        );
-                        
-                        if (result.success) {
-                          alert('✅ Customer added successfully!');
-                          setCustomerFormData({
-                            name: '',
-                            email: '',
-                            contactNo: '',
-                            billingAddress: '',
-                            deliveryAddress: '',
-                            branch: ''
-                          });
-                          // Reload customers
-                          if (formData.salesPerson) {
-                            handleSalesPersonChange(formData.salesPerson, true);
-                          }
-                        } else {
-                          alert(`❌ Error: ${result.message}`);
-                        }
-                      } catch (error: any) {
-                        alert(`❌ Error: ${error.message}`);
-                      } finally {
-                        setIsAddingCustomer(false);
-                      }
-                    }}
-                    disabled={isAddingCustomer}
-                  >
-                    {isAddingCustomer ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                    {isAddingCustomer ? 'Adding...' : 'Add Customer'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* BULK IMPORT SECTION */}
-              <div className="border-2 border-green-200 rounded-lg p-4 bg-green-50">
-                <h3 className="text-sm font-bold text-gray-800 mb-4 flex items-center">
-                  <UploadCloud className="w-4 h-4 mr-2 text-green-600" />
-                  Bulk Import Customers
-                </h3>
-
-                <p className="text-xs text-gray-600 mb-3">
-                  Import multiple customers at once from your data source.
-                </p>
-
-                <Button 
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={importBulkCustomerData}
-                  disabled={isBulkImporting}
-                >
-                  {isBulkImporting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <UploadCloud className="w-4 h-4 mr-2" />}
-                  {isBulkImporting ? 'Importing...' : 'Import Customers'}
-                </Button>
-
-                {bulkImportMessage && (
-                  <p className="text-xs mt-3 p-2 bg-white rounded border border-gray-300">
-                    {bulkImportMessage}
-                  </p>
-                )}
-              </div>
-
-              <Button 
-                variant="secondary"
-                className="w-full"
-                onClick={() => setShowCustomerModal(false)}
-              >
-                Close
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
       
     </div>
   );
