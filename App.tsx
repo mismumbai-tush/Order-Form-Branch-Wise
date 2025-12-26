@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Trash2, Save, History, Wand2, Loader2, Printer, MapPin, RefreshCcw, Edit2, LogOut, User, CheckCircle, HardDrive, UploadCloud, FileSpreadsheet, X, Eye, Settings, Copy, Check, Users, Package, HelpCircle, RefreshCw, Home, Download, Menu } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
+import './index.css';
 import { BRANCHES, UNIT_CATEGORIES, MEASUREMENT_UNITS, SALES_PERSONS, BRANCH_ID_MAPPING, GOOGLE_SCRIPT_URL } from './constants';
 import { FormMode, OrderFormData, OrderLineItem, SubmittedOrder, SalesPerson, Branch, RegisteredUser, Customer, Item } from './types';
 import { Button } from './components/Button.tsx';
