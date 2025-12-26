@@ -1093,25 +1093,29 @@ function App() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center p-4 font-sans">
-        <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-md space-y-6 animate-fade-in">
-          <div className="text-center">
-            <img 
-              src="https://www.ginzalimited.com/cdn/shop/files/Ginza_logo.jpg?v=1668509673&width=500" 
-              alt="GINZA Logo" 
-              className="h-20 mx-auto mb-4 object-contain" 
-            />
-            <h1 className="text-2xl font-bold text-gray-900">Ginza Industries Ltd.</h1>
-            <p className="text-gray-500">Order Portal</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-blue-50 to-blue-100 flex flex-col items-center justify-center p-4 font-sans">
+        <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm space-y-6 animate-fade-in border border-blue-100">
+          
+          {/* Logo Section */}
+          <div className="text-center space-y-3">
+            <div className="flex justify-center">
+              <img 
+                src="https://www.ginzalimited.com/cdn/shop/files/Ginza_logo.jpg?v=1668509673&width=500" 
+                alt="GINZA Logo" 
+                className="h-16 object-contain" 
+              />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Ginza Industries</h1>
+            <p className="text-sm text-gray-500 font-medium">Order Portal</p>
           </div>
           
           {authError && (
-             <div className="bg-red-50 border-l-4 border-red-500 p-3 mb-2 rounded-r">
-                <div className="flex">
-                   <div className="flex-shrink-0">
+             <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <div className="flex gap-3">
+                   <div className="flex-shrink-0 pt-0.5">
                       <X className="h-5 w-5 text-red-500" />
                    </div>
-                   <div className="ml-3">
+                   <div>
                       <p className="text-sm text-red-700 font-bold">Authentication Failed</p>
                       <p className="text-xs text-red-600 mt-1">{authError}</p>
                    </div>
@@ -1120,7 +1124,7 @@ function App() {
           )}
 
           {authMode === 'LOGIN' ? (
-            <form onSubmit={handleSignIn} className="space-y-4 pt-2">
+            <form onSubmit={handleSignIn} className="space-y-4">
               <div>
                 <Input 
                    label="Email ID" 
@@ -1141,7 +1145,7 @@ function App() {
                    onChange={(e) => setLoginPassword(e.target.value)}
                 />
               </div>
-              <Button type="submit" className="w-full py-3 mt-2 font-semibold" disabled={authLoading}>
+              <Button type="submit" className="w-full py-3 mt-4 font-bold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-lg" disabled={authLoading}>
                 {authLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <User className="w-4 h-4 mr-2" />}
                 {authLoading ? 'Signing In...' : 'Sign In'}
               </Button>
@@ -1152,15 +1156,15 @@ function App() {
                    <button 
                      type="button"
                      onClick={() => { setAuthMode('REGISTER'); setAuthError(null); }}
-                     className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                     className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                    >
-                     Create an account
+                     Create one
                    </button>
                  </p>
               </div>
             </form>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-3 pt-2">
+            <form onSubmit={handleRegister} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <Input 
                   label="First Name" 
@@ -1217,7 +1221,7 @@ function App() {
                   ))}
               </Select>
 
-              <Button type="submit" variant="success" className="w-full py-3 mt-2 font-semibold" disabled={authLoading}>
+              <Button type="submit" className="w-full py-3 mt-4 font-bold bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg shadow-lg" disabled={authLoading}>
                 {authLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2"/> : <CheckCircle className="w-4 h-4 mr-2" />}
                 {authLoading ? 'Registering...' : 'Register & Login'}
               </Button>
@@ -1228,17 +1232,17 @@ function App() {
                    <button 
                      type="button"
                      onClick={() => { setAuthMode('LOGIN'); setAuthError(null); }}
-                     className="text-blue-600 hover:text-blue-800 font-medium hover:underline"
+                     className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                    >
-                     Sign In here
+                     Sign in here
                    </button>
                  </p>
               </div>
             </form>
           )}
           
-          <div className="text-center text-xs text-gray-400 pt-4 border-t">
-            Secure System • Authorized Personnel Only
+          <div className="text-center text-xs text-gray-400 pt-4 border-t border-gray-200">
+            🔒 Secure System • Authorized Personnel Only
           </div>
         </div>
       </div>
@@ -1367,14 +1371,14 @@ function App() {
             <div className="lg:col-span-5 space-y-4 sm:space-y-6">
               
               {/* Header Section */}
-              <div className="bg-white shadow-md rounded-xl p-4 sm:p-5 border border-gray-100 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                  <h3 className="text-base font-bold text-white flex items-center">
+                    <User className="w-5 h-5 mr-3"/> Customer Details
+                  </h3>
+                </div>
                 
-                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
-                  <User className="w-4 h-4 mr-2 text-blue-500"/> Customer Details
-                </h3>
-                
-                <div className="space-y-3">
+                <div className="p-6 space-y-5">
                   <Select
                     label="Branch"
                     name="branch"
@@ -1422,10 +1426,10 @@ function App() {
                     <Button 
                       variant="ghost" 
                       onClick={() => refreshSalesPersonsList()} 
-                      className="mb-0.5" 
+                      className="mb-0 py-3" 
                       title="Refresh User List"
                     >
-                      <RefreshCw className={`w-4 h-4 text-gray-500 ${isRefreshingUsers ? 'animate-spin' : ''}`} />
+                      <RefreshCw className={`w-5 h-5 text-gray-600 ${isRefreshingUsers ? 'animate-spin' : ''}`} />
                     </Button>
                   </div>
 
@@ -1445,11 +1449,11 @@ function App() {
                         {formData.customerName && formData.customerName.trim().length > 0 && 
                          !customers.find(c => c.name.toLowerCase() === formData.customerName.toLowerCase()) && 
                          customers.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-300 rounded-md shadow-lg z-50 max-h-64 overflow-y-auto">
+                          <div className="absolute top-full left-0 right-0 mt-1 bg-white border-2 border-blue-300 rounded-lg shadow-2xl z-50 max-h-64 overflow-y-auto">
                             {/* Show matching results header */}
-                            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-3 py-2 border-b border-blue-200">
-                              <div className="text-xs font-semibold text-blue-900">
-                                🔍 <span className="text-blue-600 font-bold">{filteredCustomers.length}</span> matching name(s)
+                            <div className="sticky top-0 bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-3 border-b-2 border-blue-200">
+                              <div className="text-sm font-bold text-blue-900">
+                                🔍 <span className="text-blue-700 font-bold">{filteredCustomers.length}</span> matching customer(s)
                               </div>
                             </div>
 
@@ -1470,17 +1474,17 @@ function App() {
                                       deliveryAddress: c.deliveryAddress || ''
                                     }));
                                   }}
-                                  className="px-3 py-2.5 cursor-pointer hover:bg-blue-100 border-b border-gray-100 text-sm transition-colors group"
+                                  className="px-4 py-3 cursor-pointer hover:bg-blue-100 border-b border-gray-100 text-sm transition-colors group"
                                 >
-                                  <div className="font-medium text-gray-800 group-hover:text-blue-700">{c.name}</div>
-                                  <div className="text-xs text-gray-500 mt-0.5 flex gap-2 flex-wrap">
+                                  <div className="font-medium text-gray-900 group-hover:text-blue-700">{c.name}</div>
+                                  <div className="text-xs text-gray-600 mt-1 flex gap-3 flex-wrap">
                                     {c.contactNo && <span>📞 {c.contactNo}</span>}
-                                    {c.email && <span>✉️ {c.email.substring(0, 20)}</span>}
+                                    {c.email && <span>✉️ {c.email.substring(0, 25)}</span>}
                                   </div>
                                 </div>
                               ))
                             ) : (
-                              <div className="px-3 py-2 text-sm text-gray-500 italic">
+                              <div className="px-4 py-3 text-sm text-gray-600 italic">
                                 No customers match "{formData.customerName}"
                               </div>
                             )}
@@ -1579,13 +1583,14 @@ function App() {
             <div className="lg:col-span-7 space-y-4 sm:space-y-6">
               
               {/* Item Entry Section */}
-              <div className="bg-white shadow-md rounded-xl p-4 sm:p-5 border border-gray-100 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-1.5 h-full bg-green-500"></div>
-                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-4 flex items-center">
-                  <Package className="w-4 h-4 mr-2 text-green-500"/> Item Details
-                </h3>
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                <div className="bg-gradient-to-r from-green-600 to-green-700 px-6 py-4">
+                  <h3 className="text-base font-bold text-white flex items-center">
+                    <Package className="w-5 h-5 mr-3"/> Item Details
+                  </h3>
+                </div>
 
-                <div className="space-y-3">
+                <div className="p-6 space-y-5">
                   <Select
                     label="Category"
                     name="category"
@@ -1733,40 +1738,45 @@ function App() {
 
               {/* Items Table */}
               {items.length > 0 && (
-                <div className="bg-white shadow-md rounded-xl border border-gray-100 overflow-hidden">
+                <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
+                    <h3 className="text-base font-bold text-white flex items-center">
+                      📋 Items Added ({items.length})
+                    </h3>
+                  </div>
                   <div className="overflow-x-auto custom-scrollbar">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gray-100 border-b border-gray-300">
                         <tr>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Qty</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rate</th>
-                          <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
-                          <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Action</th>
+                          <th className="px-5 py-4 text-left text-xs font-bold text-gray-700 uppercase">Item</th>
+                          <th className="px-5 py-4 text-left text-xs font-bold text-gray-700 uppercase">Qty</th>
+                          <th className="px-5 py-4 text-left text-xs font-bold text-gray-700 uppercase">Rate</th>
+                          <th className="px-5 py-4 text-left text-xs font-bold text-gray-700 uppercase">Total</th>
+                          <th className="px-5 py-4 text-right text-xs font-bold text-gray-700 uppercase">Action</th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
                         {items.map((item) => (
-                          <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-4 py-3 text-sm text-gray-900">
-                              <div className="font-medium">{item.itemName || item.manualItemName}</div>
-                              <div className="text-xs text-gray-500">{item.category} • {item.width}</div>
+                          <tr key={item.id} className="hover:bg-blue-50 transition-colors">
+                            <td className="px-5 py-4 text-sm text-gray-900">
+                              <div className="font-semibold text-gray-800">{item.itemName || item.manualItemName}</div>
+                              <div className="text-xs text-gray-600 mt-1">{item.category} • {item.width}</div>
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-500">
+                            <td className="px-5 py-4 text-sm text-gray-700 font-medium">
                               {item.quantity} {item.uom}
                             </td>
-                            <td className="px-4 py-3 text-sm text-gray-500">
+                            <td className="px-5 py-4 text-sm text-gray-700 font-medium">
                               ₹{item.rate}
                             </td>
-                            <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                            <td className="px-5 py-4 text-sm font-bold text-gray-900">
                               ₹{((parseFloat(item.quantity) || 0) * (item.rate || 0)).toFixed(2)}
                             </td>
-                            <td className="px-4 py-3 text-right text-sm font-medium">
-                               <div className="flex justify-end space-x-2">
-                                  <button onClick={() => handleEditItem(item)} className="text-blue-600 hover:text-blue-900">
+                            <td className="px-5 py-4 text-right">
+                               <div className="flex justify-end gap-2">
+                                  <button onClick={() => handleEditItem(item)} className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition">
                                     <Edit2 className="w-4 h-4" />
                                   </button>
-                                  <button onClick={() => handleDeleteItem(item.id)} className="text-red-600 hover:text-red-900">
+                                  <button onClick={() => handleDeleteItem(item.id)} className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition">
                                     <Trash2 className="w-4 h-4" />
                                   </button>
                                </div>
@@ -1781,7 +1791,7 @@ function App() {
 
               {/* Submit Button (Desktop) */}
               <Button 
-                className="w-full shadow-lg text-lg py-3 bg-green-600 hover:bg-green-700" 
+                className="w-full shadow-xl text-lg py-4 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 font-bold text-white rounded-lg transform hover:scale-105 transition-all" 
                 onClick={handleReviewOrder}
                 disabled={items.length === 0}
               >
