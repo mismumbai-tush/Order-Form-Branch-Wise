@@ -107,4 +107,4 @@ export const SALES_PERSONS: SalesPerson[] = [
   { id: 'sp_kolkata_2', name: 'Rajesh', contactNo: '', branchId: 'kolkata' }
 ];
 
-export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7hX97jGL2A5hJ4YhJu5STdOQa1rYQOI4jgKsteuN0FPDZuAYD4OoEXFSrEYtCqfbq5A/exec"; // Google Apps Script deployment URL
+export const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMfDlawVVHEJfykwLcruYUNhpAgBMSU7rl06kupKRXkMWUFvkJrv4E-FRw2_FB631t0A/exec"; // Google Apps Script deployment URL
